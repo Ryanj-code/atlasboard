@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx ts-node-dev src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -20,7 +21,9 @@
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
+    "@types/jsonwebtoken": "^9.0.9",
     "prisma": "^6.8.2",
     "typescript": "^5.8.3"
   }
