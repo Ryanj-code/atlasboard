@@ -1,4 +1,3 @@
-import { Context } from "../../../context";
 import { createTask, deleteTask, tasks, updateTask } from "./task.service";
 
 export const taskResolvers = {

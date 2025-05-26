@@ -3,13 +3,14 @@ import { Request } from "express";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
+const JWT_SECRET = process.env.JWT_SECRET_KEY!;
 
 export interface Context {
   prisma: PrismaClient;
   userId?: string | null;
 }
 
-export const createContext = (req?: Request): Context => {
+export function createContext(req?: Request): Context {
   const authHeader = req?.headers.authorization;
   let userId: string | null = null;
 
@@ -17,7 +18,7 @@ export const createContext = (req?: Request): Context => {
     const token = authHeader.replace("Bearer ", "");
 
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET!);
+      const decoded = jwt.verify(token, JWT_SECRET);
       userId = (decoded as any).userId;
     } catch (err) {
       if (err instanceof Error) {
@@ -29,4 +30,4 @@ export const createContext = (req?: Request): Context => {
   }
 
   return { prisma, userId };
-};
+}

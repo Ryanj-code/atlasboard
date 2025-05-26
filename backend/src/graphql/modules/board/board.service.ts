@@ -1,21 +1,23 @@
 import { Context } from "../../../context";
-import { requireAuth } from "../../utils";
+import { requireAuth, requireBoardRole } from "../../utils";
+import { BoardRole } from "../../../../prisma/generated";
 
-export const boards = async (_parent: unknown, _args: {}, context: Context) => {
-  requireAuth(context);
+export async function boards(_parent: unknown, _args: {}, context: Context) {
+  const userId = requireAuth(context);
 
-  return context.prisma.board.findMany({
-    include: {
-      tasks: true,
-    },
+  const memberships = await context.prisma.boardMember.findMany({
+    where: { userId },
+    include: { board: { include: { tasks: true } } },
   });
-};
 
-export const createBoard = async (
+  return memberships.map((m) => m.board);
+}
+
+export async function createBoard(
   _parent: unknown,
   args: { title: string; description?: string },
   context: Context
-) => {
+) {
   const userId = requireAuth(context);
 
   return context.prisma.board.create({
@@ -25,18 +27,103 @@ export const createBoard = async (
       user: {
         connect: { id: userId },
       },
+      members: {
+        create: {
+          userId,
+          role: BoardRole.OWNER,
+        },
+      },
     },
   });
-};
+}
 
-export const tasks = async (
+export async function deleteBoard(
+  _parent: unknown,
+  { boardId }: { boardId: string },
+  context: Context
+) {
+  const userId = requireAuth(context);
+
+  await requireBoardRole(context.prisma, userId, boardId, [BoardRole.OWNER]);
+
+  return context.prisma.board.delete({
+    where: { id: boardId },
+  });
+}
+
+export async function addBoardMember(
+  _parent: unknown,
+  {
+    boardId,
+    userId,
+    role,
+  }: { boardId: string; userId: string; role: BoardRole },
+  context: Context
+) {
+  const currentUserId = requireAuth(context);
+
+  // Only the board OWNER can invite others
+  await requireBoardRole(context.prisma, currentUserId, boardId, [
+    BoardRole.OWNER,
+  ]);
+
+  return context.prisma.boardMember.create({
+    data: {
+      boardId,
+      userId,
+      role,
+    },
+  });
+}
+
+export async function updateBoardMember(
+  _parent: unknown,
+  {
+    boardId,
+    userId,
+    role,
+  }: { boardId: string; userId: string; role: BoardRole },
+  context: Context
+) {
+  const currentUserId = requireAuth(context);
+
+  // Only the current board OWNER can invite others
+  await requireBoardRole(context.prisma, currentUserId, boardId, [
+    BoardRole.OWNER,
+  ]);
+
+  return context.prisma.boardMember.update({
+    where: {
+      userId_boardId: { userId, boardId },
+    },
+    data: {
+      role,
+    },
+  });
+}
+
+export async function tasks(
   parent: { id: string },
   _args: {},
   context: Context
-) => {
-  requireAuth(context);
+) {
+  const userId = requireAuth(context);
+
+  // Skip role check if board no longer exists
+  const board = await context.prisma.board.findUnique({
+    where: { id: parent.id },
+    select: { id: true },
+  });
+
+  if (!board) return [];
+
+  await requireBoardRole(context.prisma, userId, parent.id, [
+    BoardRole.OWNER,
+    BoardRole.EDITOR,
+    BoardRole.VIEWER,
+  ]);
 
   return context.prisma.task.findMany({
     where: { boardId: parent.id },
   });
-};
+}

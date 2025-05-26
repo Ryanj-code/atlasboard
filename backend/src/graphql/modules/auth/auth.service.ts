@@ -8,14 +8,14 @@ import {
 
 const prisma = new PrismaClient();
 
-export const signup = async (
+export async function signup(
   _: any,
   {
     email,
     username,
     password,
   }: { email: string; username: string; password: string }
-) => {
+) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) throw new Error("Email already in use");
 
@@ -31,17 +31,17 @@ export const signup = async (
     data: {
       userId: user.id,
       token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // expires in 7 days
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
 
   return { accessToken, refreshToken, user };
-};
+}
 
-export const login = async (
+export async function login(
   _: any,
   { email, password }: { email: string; password: string }
-) => {
+) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error("User not found");
 
@@ -55,14 +55,28 @@ export const login = async (
     data: {
       userId: user.id,
       token: refreshToken,
-      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // expires in 7 days
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
     },
   });
 
   return { accessToken, refreshToken, user };
-};
+}
 
-export const refreshToken = async (_: any, { token }: { token: string }) => {
+export async function logout(_: any, { token }: { token: string }) {
+  try {
+    await prisma.session.delete({
+      where: { token },
+    });
+    return true;
+  } catch (err) {
+    console.error("Logout failed:", err);
+    throw new Error(
+      "Failed to logout. Token may be invalid or already deleted."
+    );
+  }
+}
+
+export async function refreshToken(_: any, { token }: { token: string }) {
   try {
     const { userId } = verifyRefreshToken(token);
 
@@ -83,18 +97,4 @@ export const refreshToken = async (_: any, { token }: { token: string }) => {
   } catch {
     throw new Error("Invalid or expired refresh token");
   }
-};
-
-export const logout = async (_: any, { token }: { token: string }) => {
-  try {
-    await prisma.session.delete({
-      where: { token },
-    });
-    return true;
-  } catch (err) {
-    console.error("Logout failed:", err);
-    throw new Error(
-      "Failed to logout. Token may be invalid or already deleted."
-    );
-  }
-};
+}

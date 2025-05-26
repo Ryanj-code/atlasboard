@@ -15,34 +15,13 @@ datasource db {
 }
 
 model User {
-  id       String    @id @default(uuid())
-  email    String    @unique
-  username String   
-  password String
-  boards   Board[]
-  sessions Session[]
-}
-
-model Board {
-  id          String  @id @default(uuid())
-  title       String
-  description String?
-  user        User     @relation(fields: [userId], references: [id])
-  userId      String
-  tasks       Task[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-}
-
-model Task {
-  id        String   @id @default(uuid())
-  title     String
-  status    String
-  dueDate   DateTime?
-  board     Board    @relation(fields: [boardId], references: [id])
-  boardId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id            String         @id @default(uuid())
+  email         String         @unique
+  username      String         @unique
+  password      String
+  boards        Board[]        // Owned boards
+  sessions      Session[]
+  memberships   BoardMember[]  // Boards the user belongs to
 }
 
 model Session {
@@ -52,4 +31,45 @@ model Session {
   token      String   @unique
   createdAt  DateTime @default(now())
   expiresAt  DateTime
+}
+
+model Board {
+  id          String         @id @default(uuid())
+  title       String
+  description String?
+  user        User           @relation(fields: [userId], references: [id])
+  userId      String
+  tasks       Task[]
+  members     BoardMember[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+}
+
+model BoardMember {
+  id        String   @id @default(uuid())
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId   String
+  role      BoardRole @default(VIEWER)
+  createdAt DateTime  @default(now())
+
+  @@unique([userId, boardId]) // prevent duplicates
+}
+
+enum BoardRole {
+  OWNER
+  EDITOR
+  VIEWER
+}
+
+model Task {
+  id        String   @id @default(uuid())
+  title     String
+  status    String
+  dueDate   DateTime?
+  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  boardId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
