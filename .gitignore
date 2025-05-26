@@ -28,4 +28,8 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
+# Zip files
+*.zip
+
+# Prisma generated file
 backend/prisma/generated/
