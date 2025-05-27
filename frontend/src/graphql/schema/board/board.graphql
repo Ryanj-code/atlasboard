@@ -1,0 +1,61 @@
+# Get all boards
+query GetBoards {
+  boards {
+    id
+    title
+    description
+    tasks {
+      id
+      title
+      status
+      dueDate
+    }
+  }
+}
+
+# Create a new board
+mutation CreateBoard($title: String!, $description: String) {
+  createBoard(title: $title, description: $description) {
+    id
+    title
+    description
+  }
+}
+
+# Delete a board
+mutation DeleteBoard($boardId: ID!) {
+  deleteBoard(boardId: $boardId) {
+    id
+    title
+  }
+}
+
+# Add board member
+mutation AddBoardMember(
+  $boardId: String!
+  $userId: String!
+  $role: BoardRole!
+) {
+  addBoardMember(boardId: $boardId, userId: $userId, role: $role) {
+    id
+    boardId
+    userId
+    role
+    createdAt
+  }
+}
+
+# Update board member
+mutation UpdateBoardMember(
+  $boardId: String!
+  $userId: String!
+  $role: BoardRole!
+) {
+  updateBoardMember(boardId: $boardId, userId: $userId, role: $role) {
+    id
+    boardId
+    userId
+    role
+    createdAt
+  }
+}

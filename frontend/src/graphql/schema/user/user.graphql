@@ -1,0 +1,13 @@
+# Get current user
+query Me {
+  me {
+    id
+    email
+    username
+    boards {
+      id
+      title
+      description
+    }
+  }
+}
