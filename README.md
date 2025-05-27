@@ -26,6 +26,12 @@ npm install
 cd server
 npm install
 
+# Generate backend schema
+npm run generate:schema
+
+# Generate frontend file with codegen
+npm run generate
+
 # Start development servers
 npm run dev  # in /server
 npm run dev  # in /client (separate terminal)
