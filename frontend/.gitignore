@@ -7,8 +7,10 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
+# Node.js
+node_modules/
+dist/
+build/
 dist-ssr
 *.local
 
@@ -22,3 +24,11 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# dotenv files
+.env
+.env.local
+.env.*.local
+
+# Codegen generated file
+src/graphql/generated/
