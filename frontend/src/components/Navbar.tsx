@@ -1,13 +1,20 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Navbar = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { logout } = useAuth();
 
   const navItems = [
     { label: "Dashboard", path: "/dashboard" },
     // Add more links as needed
   ];
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
 
   return (
     <header className="bg-white dark:bg-gray-950 border-b shadow-sm dark:border-gray-800">
@@ -45,7 +52,10 @@ const Navbar = () => {
           >
             Settings
           </button>
-          <button className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-red-400">
+          <button
+            onClick={handleLogout}
+            className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-red-400"
+          >
             Logout
           </button>
         </div>

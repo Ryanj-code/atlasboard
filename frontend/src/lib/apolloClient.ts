@@ -1,14 +1,23 @@
-import { ApolloClient, InMemoryCache, createHttpLink } from "@apollo/client";
+import {
+  ApolloClient,
+  InMemoryCache,
+  Observable,
+  createHttpLink,
+  from,
+} from "@apollo/client";
+import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
+import { getAccessToken, setAccessToken } from "@/lib/accessToken";
+import axios from "axios";
 
-// console.log("GRAPHQL URI:", import.meta.env.VITE_GRAPHQL_URI);
-
+// Create normal HTTP link
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_GRAPHQL_URI,
 });
 
+// Auth link to attach accessToken
 const authLink = setContext((_, { headers }) => {
-  const token = localStorage.getItem("authToken");
+  const token = getAccessToken();
   return {
     headers: {
       ...headers,
@@ -17,9 +26,59 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-// Create the Apollo Client with the authLink middleware
+// Error link to handle UNAUTHENTICATED
+const errorLink = onError(({ graphQLErrors, operation, forward }) => {
+  if (graphQLErrors) {
+    for (const err of graphQLErrors) {
+      if (err.extensions?.code === "UNAUTHENTICATED") {
+        const refreshToken = localStorage.getItem("refreshToken");
+        if (!refreshToken) return;
+
+        return new Observable((observer) => {
+          axios
+            .post(import.meta.env.VITE_GRAPHQL_URI, {
+              query: `
+                mutation RefreshToken($token: String!) {
+                  refreshToken(token: $token) {
+                    accessToken
+                  }
+                }
+              `,
+              variables: { token: refreshToken },
+            })
+            .then((res) => {
+              const newToken = res.data?.data?.refreshToken?.accessToken;
+              if (newToken) {
+                setAccessToken(newToken);
+
+                operation.setContext(({ headers = {} }) => ({
+                  headers: {
+                    ...headers,
+                    authorization: `Bearer ${newToken}`,
+                  },
+                }));
+
+                forward(operation).subscribe({
+                  next: observer.next.bind(observer),
+                  error: observer.error.bind(observer),
+                  complete: observer.complete.bind(observer),
+                });
+              } else {
+                observer.error(new Error("No new token returned"));
+              }
+            })
+            .catch((err) => {
+              console.error("Token refresh failed", err);
+              observer.error(err);
+            });
+        });
+      }
+    }
+  }
+});
+
 const client = new ApolloClient({
-  link: authLink.concat(httpLink),
+  link: from([errorLink, authLink, httpLink]),
   cache: new InMemoryCache(),
 });
 
