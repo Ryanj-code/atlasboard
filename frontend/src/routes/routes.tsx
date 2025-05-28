@@ -6,6 +6,7 @@ import { NotFound } from "@/features/app/NotFound";
 import { AppLayout } from "@/layouts/AppLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { Landing } from "@/features/landing/Landing";
+import Settings from "@/features/settings/Settings";
 
 export const routes: RouteObject[] = [
   {
@@ -23,6 +24,7 @@ export const routes: RouteObject[] = [
     element: <AppLayout />,
     children: [
       { path: "/dashboard", element: <Dashboard /> },
+      { path: "/settings", element: <Settings /> },
       // Add more authenticated routes here
     ],
   },

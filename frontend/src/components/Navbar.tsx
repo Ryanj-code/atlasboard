@@ -1,19 +1,22 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   const navItems = [
-    { label: "Dashboard", path: "/" },
-    { label: "Settings", path: "/settings" },
+    { label: "Dashboard", path: "/dashboard" },
     // Add more links as needed
   ];
 
   return (
-    <header className="bg-white border-b shadow-sm">
+    <header className="bg-white dark:bg-gray-950 border-b shadow-sm dark:border-gray-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         {/* Logo/Brand */}
-        <Link to="/" className="text-xl font-bold text-blue-600">
+        <Link
+          to="/"
+          className="text-xl font-bold text-blue-600 dark:text-indigo-300"
+        >
           AtlasBoard
         </Link>
 
@@ -25,8 +28,8 @@ const Navbar = () => {
               to={item.path}
               className={`text-sm font-medium transition-colors ${
                 location.pathname === item.path
-                  ? "text-blue-600"
-                  : "text-gray-700 hover:text-blue-500"
+                  ? "text-blue-600 dark:text-indigo-400"
+                  : "text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-indigo-300"
               }`}
             >
               {item.label}
@@ -34,12 +37,15 @@ const Navbar = () => {
           ))}
         </nav>
 
-        {/* User Actions (Placeholder) */}
+        {/* User Actions */}
         <div className="flex items-center space-x-3">
-          <button className="text-sm text-gray-700 hover:text-blue-500">
-            Profile
+          <button
+            onClick={() => navigate("/settings")}
+            className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-indigo-300"
+          >
+            Settings
           </button>
-          <button className="text-sm text-gray-700 hover:text-blue-500">
+          <button className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-red-400">
             Logout
           </button>
         </div>

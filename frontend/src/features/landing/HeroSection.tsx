@@ -10,7 +10,7 @@ export const HeroSection = () => {
       <p className="text-lg text-gray-600 mb-6">
         Create boards. Track tasks. Collaborate easily.
       </p>
-      <Link to="/signup">
+      <Link to="/dashboard">
         <Button variant="primary" size="md">
           Get Started
         </Button>
