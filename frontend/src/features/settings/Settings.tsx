@@ -5,86 +5,94 @@ const Settings = () => {
   const { theme, setTheme } = useTheme();
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
-        Settings
-      </h1>
-
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">
-          Appearance
-        </h2>
-        <div className="flex gap-4">
-          {/* Light */}
-          <button
-            onClick={() => setTheme("light")}
-            className={`flex items-center gap-2 px-4 py-2 rounded border transition ${
-              theme === "light"
-                ? "bg-blue-100 text-blue-600 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                : "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-          >
-            <Sun className="w-4 h-4 text-yellow-500 dark:text-yellow-300" />
-            Light
-          </button>
-
-          {/* Dark */}
-          <button
-            onClick={() => setTheme("dark")}
-            className={`flex items-center gap-2 px-4 py-2 rounded border transition ${
-              theme === "dark"
-                ? "bg-blue-100 text-blue-600 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                : "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-          >
-            <Moon className="w-4 h-4 text-indigo-800 dark:text-indigo-400" />
-            Dark
-          </button>
-
-          {/* System */}
-          <button
-            onClick={() => setTheme("system")}
-            className={`flex items-center gap-2 px-4 py-2 rounded border transition ${
-              theme === "system"
-                ? "bg-blue-100 text-blue-600 border-blue-300 dark:bg-blue-900 dark:text-blue-300 dark:border-blue-700"
-                : "bg-gray-100 text-gray-800 border-gray-300 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700 hover:bg-gray-200 dark:hover:bg-gray-700"
-            }`}
-          >
-            <Palette className="w-4 h-4 text-gray-600 dark:text-gray-400" />
-            System
-          </button>
+    <div className="p-6 min-h-screen">
+      <div className="max-w-4xl mx-auto space-y-10">
+        <div>
+          <h1 className="text-3xl font-bold text-amber-900 dark:text-amber-100 mb-2">
+            Settings
+          </h1>
+          <p className="text-sm text-amber-700 dark:text-amber-300">
+            Customize your experience and preferences
+          </p>
         </div>
-      </section>
 
-      {/* Profile Settings (placeholder) */}
-      <section className="mb-8">
-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">
-          Profile
-        </h2>
-        <div className="bg-white dark:bg-gray-900 p-4 rounded shadow border dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <User className="text-gray-500 dark:text-gray-400" />
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              Profile editing coming soon.
-            </p>
+        {/* Theme */}
+        <section>
+          <h2 className="text-xl font-semibold text-amber-800 dark:text-amber-200 mb-3">
+            Theme Mode
+          </h2>
+          <div className="flex gap-4">
+            {/* Light */}
+            <button
+              onClick={() => setTheme("light")}
+              className={`flex items-center gap-2 px-4 py-2 rounded border-2 font-medium transition ${
+                theme === "light"
+                  ? "bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-900 dark:text-sky-300 dark:border-sky-700"
+                  : "bg-white dark:bg-slate-700 text-zinc-800 dark:text-white border-zinc-300 dark:border-slate-600 hover:bg-zinc-100 dark:hover:bg-slate-600"
+              }`}
+            >
+              <Sun className="w-4 h-4" />
+              Light
+            </button>
+
+            {/* Dark */}
+            <button
+              onClick={() => setTheme("dark")}
+              className={`flex items-center gap-2 px-4 py-2 rounded border-2 font-medium transition ${
+                theme === "dark"
+                  ? "bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-900 dark:text-sky-300 dark:border-sky-700"
+                  : "bg-white dark:bg-slate-700 text-zinc-800 dark:text-white border-zinc-300 dark:border-slate-600 hover:bg-zinc-100 dark:hover:bg-slate-600"
+              }`}
+            >
+              <Moon className="w-4 h-4" />
+              Dark
+            </button>
+
+            {/* System */}
+            <button
+              onClick={() => setTheme("system")}
+              className={`flex items-center gap-2 px-4 py-2 rounded border-2 font-medium transition ${
+                theme === "system"
+                  ? "bg-sky-100 text-sky-700 border-sky-300 dark:bg-sky-900 dark:text-sky-300 dark:border-sky-700"
+                  : "bg-white dark:bg-slate-700 text-zinc-800 dark:text-white border-zinc-300 dark:border-slate-600 hover:bg-zinc-100 dark:hover:bg-slate-600"
+              }`}
+            >
+              <Palette className="w-4 h-4" />
+              System
+            </button>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* Account Settings (placeholder) */}
-      <section>
-        <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-200 mb-3">
-          Account
-        </h2>
-        <div className="bg-white dark:bg-gray-900 p-4 rounded shadow border dark:border-gray-800">
-          <div className="flex items-center gap-3">
-            <Lock className="text-gray-500 dark:text-gray-400" />
-            <p className="text-sm text-gray-700 dark:text-gray-300">
-              Password and security settings coming soon.
-            </p>
+        {/* Profile Placeholder */}
+        <section>
+          <h2 className="text-xl font-semibold text-amber-800 dark:text-amber-200 mb-3">
+            Profile
+          </h2>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-amber-200 dark:border-slate-700 shadow-md">
+            <div className="flex items-center gap-3">
+              <User className="w-5 h-5 text-amber-700 dark:text-amber-300" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Profile editing coming soon.
+              </p>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+
+        {/* Account Placeholder */}
+        <section>
+          <h2 className="text-xl font-semibold text-amber-800 dark:text-amber-200 mb-3">
+            Account
+          </h2>
+          <div className="bg-white dark:bg-slate-800 p-4 rounded-xl border border-amber-200 dark:border-slate-700 shadow-md">
+            <div className="flex items-center gap-3">
+              <Lock className="w-5 h-5 text-amber-700 dark:text-amber-300" />
+              <p className="text-sm text-amber-800 dark:text-amber-200">
+                Password and security settings coming soon.
+              </p>
+            </div>
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

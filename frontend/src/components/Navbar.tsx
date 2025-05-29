@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
+import { LayoutDashboard, Settings, LogOut } from "lucide-react";
 
 const Navbar = () => {
   const location = useLocation();
@@ -7,8 +8,11 @@ const Navbar = () => {
   const { logout } = useAuth();
 
   const navItems = [
-    { label: "Dashboard", path: "/dashboard" },
-    // Add more links as needed
+    {
+      label: "Dashboard",
+      path: "/dashboard",
+      icon: <LayoutDashboard className="w-4 h-4" />,
+    },
   ];
 
   const handleLogout = async () => {
@@ -17,45 +21,48 @@ const Navbar = () => {
   };
 
   return (
-    <header className="bg-white dark:bg-gray-950 border-b shadow-sm dark:border-gray-800">
+    <header className="bg-[#fdfcf9] dark:bg-slate-900 border-b border-amber-200 dark:border-slate-700 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        {/* Logo/Brand */}
+        {/* Brand */}
         <Link
           to="/"
-          className="text-xl font-bold text-blue-600 dark:text-indigo-300"
+          className="text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300"
         >
           AtlasBoard
         </Link>
 
-        {/* Nav Links */}
-        <nav className="flex space-x-4">
+        {/* Navigation */}
+        <nav className="flex gap-6">
           {navItems.map((item) => (
             <Link
               key={item.path}
               to={item.path}
-              className={`text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1 text-sm font-medium transition-colors ${
                 location.pathname === item.path
-                  ? "text-blue-600 dark:text-indigo-400"
-                  : "text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-indigo-300"
+                  ? "text-blue-600 dark:text-sky-300"
+                  : "text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-sky-400"
               }`}
             >
+              {item.icon}
               {item.label}
             </Link>
           ))}
         </nav>
 
         {/* User Actions */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center gap-4">
           <button
             onClick={() => navigate("/settings")}
-            className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-indigo-300"
+            className="flex items-center gap-1 text-sm text-zinc-700 dark:text-zinc-300 hover:text-blue-500 dark:hover:text-sky-400 transition"
           >
+            <Settings className="w-4 h-4" />
             Settings
           </button>
           <button
             onClick={handleLogout}
-            className="text-sm text-gray-700 dark:text-gray-300 hover:text-blue-500 dark:hover:text-red-400"
+            className="flex items-center gap-1 text-sm text-zinc-700 dark:text-zinc-300 hover:text-red-600 dark:hover:text-red-400 transition"
           >
+            <LogOut className="w-4 h-4" />
             Logout
           </button>
         </div>

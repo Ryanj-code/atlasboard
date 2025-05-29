@@ -21,6 +21,7 @@ interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signup: (email: string, username: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  loading: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -33,12 +34,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [signupMutation] = useMutation(SignupDocument);
   const [logoutMutation] = useMutation(LogoutDocument);
   const [refreshTokenMutation] = useMutation(RefreshTokenDocument);
+  const [loading, setLoading] = useState(true); // NEW
 
-  // Optional: auto-refresh on mount
   useEffect(() => {
     const refresh = async () => {
       const refreshToken = localStorage.getItem("refreshToken");
-      if (!refreshToken) return;
+      if (!refreshToken) {
+        setLoading(false);
+        return;
+      }
 
       try {
         const { data } = await refreshTokenMutation({
@@ -47,11 +51,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         if (data?.refreshToken?.accessToken) {
           setAccessToken(data.refreshToken.accessToken);
           setTokenStore(data.refreshToken.accessToken);
-          // optional: fetch user info if needed
         }
       } catch (err) {
         console.error("Token refresh failed", err);
         logout();
+      } finally {
+        setLoading(false); // ✅ Ready to render
       }
     };
 
@@ -96,7 +101,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, accessToken, login, signup, logout }}>
+    <AuthContext.Provider
+      value={{ user, accessToken, login, signup, logout, loading }}
+    >
       {children}
     </AuthContext.Provider>
   );

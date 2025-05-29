@@ -1,4 +1,4 @@
-import type { RouteObject } from "react-router-dom";
+import { type RouteObject } from "react-router-dom";
 import { Login } from "@/features/auth/Login";
 import { Signup } from "@/features/auth/Signup";
 import { Dashboard } from "@/features/dashboard/Dashboard";
@@ -7,6 +7,7 @@ import { AppLayout } from "@/layouts/AppLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { Landing } from "@/features/landing/Landing";
 import Settings from "@/features/settings/Settings";
+import TaskDisplay from "@/features/task/TaskDisplay";
 
 export const routes: RouteObject[] = [
   {
@@ -25,6 +26,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/settings", element: <Settings /> },
+      { path: "/tasks/:boardId", element: <TaskDisplay /> },
       // Add more authenticated routes here
     ],
   },
