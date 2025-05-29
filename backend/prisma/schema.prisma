@@ -60,7 +60,7 @@ model BoardMember {
 model Task {
   id        String   @id @default(uuid())
   title     String
-  status    String
+  status    TaskStatus
   dueDate   DateTime?
   board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   String
@@ -72,4 +72,10 @@ enum BoardRole {
   OWNER
   EDITOR
   VIEWER
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
 }

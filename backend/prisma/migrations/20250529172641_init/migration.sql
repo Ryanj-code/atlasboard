@@ -1,6 +1,9 @@
 -- CreateEnum
 CREATE TYPE "BoardRole" AS ENUM ('OWNER', 'EDITOR', 'VIEWER');
 
+-- CreateEnum
+CREATE TYPE "TaskStatus" AS ENUM ('TODO', 'IN_PROGRESS', 'DONE');
+
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
@@ -49,7 +52,7 @@ CREATE TABLE "BoardMember" (
 CREATE TABLE "Task" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
-    "status" TEXT NOT NULL,
+    "status" "TaskStatus" NOT NULL,
     "dueDate" TIMESTAMP(3),
     "boardId" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,

@@ -1,6 +1,6 @@
 import { Context } from "../../../context";
 import { requireAuth, requireBoardRole } from "../../utils";
-import { BoardRole } from "../../../../prisma/generated";
+import { BoardRole, TaskStatus } from "../../../../prisma/generated";
 
 export async function tasks(
   _parent: unknown,
@@ -22,7 +22,7 @@ export async function tasks(
 
 export async function createTask(
   _parent: unknown,
-  args: { boardId: string; title: string; status: string },
+  args: { boardId: string; title: string; status: TaskStatus },
   context: Context
 ) {
   const userId = requireAuth(context);
@@ -43,7 +43,7 @@ export async function createTask(
 
 export async function updateTask(
   _parent: unknown,
-  args: { id: string; title?: string; status?: string; dueDate?: string },
+  args: { id: string; title?: string; status?: TaskStatus; dueDate?: string },
   context: Context
 ) {
   const userId = requireAuth(context);
