@@ -15,9 +15,16 @@ export async function tasks(
     BoardRole.VIEWER,
   ]);
 
-  return context.prisma.task.findMany({
+  const rawTasks = await context.prisma.task.findMany({
     where: { boardId: args.boardId },
   });
+
+  return rawTasks.map((task) => ({
+    ...task,
+    createdAt: task.createdAt?.toISOString(),
+    updatedAt: task.updatedAt?.toISOString(),
+    dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+  }));
 }
 
 export async function createTask(
@@ -65,7 +72,7 @@ export async function updateTask(
     data: {
       title: args.title,
       status: args.status,
-      dueDate: args.dueDate,
+      dueDate: args.dueDate ? new Date(args.dueDate) : undefined,
     },
   });
 }

@@ -123,7 +123,14 @@ export async function tasks(
     BoardRole.VIEWER,
   ]);
 
-  return context.prisma.task.findMany({
+  const rawTasks = await context.prisma.task.findMany({
     where: { boardId: parent.id },
   });
+
+  return rawTasks.map((task) => ({
+    ...task,
+    createdAt: task.createdAt?.toISOString(),
+    updatedAt: task.updatedAt?.toISOString(),
+    dueDate: task.dueDate ? task.dueDate.toISOString() : null,
+  }));
 }
