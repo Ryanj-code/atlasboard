@@ -26,7 +26,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/settings", element: <Settings /> },
-      { path: "/tasks/:boardId", element: <TaskDisplay /> },
+      { path: "/board/:boardId", element: <TaskDisplay /> },
       // Add more authenticated routes here
     ],
   },

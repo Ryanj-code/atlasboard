@@ -14,11 +14,10 @@ export const HeroSection = () => (
       AtlasBoard helps developers organize projects, tasks, and progress with
       clarity and collaboration. Inspired by the world, designed for builders.
     </p>
-    <Link
-      to="/signup"
-      className="inline-block px-8 py-3 rounded-full text-white bg-gradient-to-r from-blue-600 to-cyan-500 hover:brightness-110 transition shadow-lg"
-    >
-      Get Started
+    <Link to="/signup">
+      <Button variant="primary" size="lg">
+        Get Started
+      </Button>
     </Link>
   </main>
 );

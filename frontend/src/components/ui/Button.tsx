@@ -13,12 +13,16 @@ const Button = ({
   className,
   ...props
 }: ButtonProps) => {
-  const baseStyles = "rounded font-medium focus:outline-none transition";
+  const baseStyles =
+    "rounded-xl font-semibold focus:outline-none transition-all duration-200 shadow-sm hover:shadow-md";
 
   const variantStyles = {
-    primary: "bg-blue-600 text-white hover:bg-blue-700",
-    secondary: "bg-gray-200 text-gray-800 hover:bg-gray-300",
-    danger: "bg-red-600 text-white hover:bg-red-700",
+    primary:
+      "bg-gradient-to-r from-blue-600 to-cyan-500 text-white hover:brightness-110 dark:from-blue-500 dark:to-cyan-400",
+    secondary:
+      "bg-amber-100 text-amber-900 dark:bg-slate-700 dark:text-amber-200 border border-amber-300 dark:border-slate-500 hover:bg-amber-200 dark:hover:bg-slate-600",
+    danger:
+      "bg-red-600 text-white hover:bg-red-700 dark:bg-red-700 dark:hover:bg-red-600",
   };
 
   const sizeStyles = {

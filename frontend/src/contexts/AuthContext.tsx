@@ -5,12 +5,13 @@ import {
   useEffect,
   type ReactNode,
 } from "react";
-import { useMutation } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
+  type User,
+  MeDocument,
   LoginDocument,
   SignupDocument,
   LogoutDocument,
-  type User,
   RefreshTokenDocument,
 } from "@/graphql/generated/graphql";
 import { setAccessToken as setTokenStore } from "@/lib/accessToken";
@@ -30,11 +31,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [accessToken, setAccessToken] = useState<string | null>(null);
 
+  const [meQuery] = useLazyQuery(MeDocument);
   const [loginMutation] = useMutation(LoginDocument);
   const [signupMutation] = useMutation(SignupDocument);
   const [logoutMutation] = useMutation(LogoutDocument);
   const [refreshTokenMutation] = useMutation(RefreshTokenDocument);
-  const [loading, setLoading] = useState(true); // NEW
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const refresh = async () => {
@@ -48,15 +50,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         const { data } = await refreshTokenMutation({
           variables: { token: refreshToken },
         });
+
         if (data?.refreshToken?.accessToken) {
           setAccessToken(data.refreshToken.accessToken);
           setTokenStore(data.refreshToken.accessToken);
+
+          const { data: meData } = await meQuery();
+          if (meData?.me) {
+            setUser(meData.me);
+          }
         }
       } catch (err) {
         console.error("Token refresh failed", err);
         logout();
       } finally {
-        setLoading(false); // ✅ Ready to render
+        setLoading(false);
       }
     };
 

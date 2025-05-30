@@ -4,14 +4,14 @@ import { useAuth } from "@/contexts/AuthContext";
 
 // Guards private routes
 export const useAuthGuard = () => {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!user) {
+    if (!loading && !user) {
       navigate("/", { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   return user;
 };

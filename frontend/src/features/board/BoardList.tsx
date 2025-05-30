@@ -2,40 +2,53 @@ import {
   LayoutDashboard,
   Trash2,
   ListTodo,
-  Code2,
-  SearchCheck,
   ScrollText,
   PlusSquare,
   GitBranch,
 } from "lucide-react";
-import { useQuery, useMutation } from "@apollo/client";
-import {
-  GetBoardsDocument,
-  DeleteBoardDocument,
-  type Board,
-} from "@/graphql/generated/graphql";
+import { useMutation } from "@apollo/client";
+import { DeleteBoardDocument, type Board } from "@/graphql/generated/graphql";
 import CreateBoardForm from "./CreateBoardForm";
 import { Link } from "react-router-dom";
+import { useGetBoards } from "@/hooks/useGetBoards";
+import { useState } from "react";
+import ConfirmDeleteModal from "@/components/ui/ConfirmDeleteModal";
+import { getStatusIcon, getStatusLabel } from "@/utils/utils";
 
 const BoardList = () => {
-  const { data, loading, error, refetch } = useQuery(GetBoardsDocument);
+  const { boards, loading, error, refetch } = useGetBoards();
   const [deleteBoard] = useMutation(DeleteBoardDocument);
 
-  const handleDelete = async (boardId: string) => {
-    await deleteBoard({ variables: { boardId } });
-    refetch();
-  };
+  const boardsData = boards ?? [];
+  // console.log(boardsData);
+
+  const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
+  const [showModal, setShowModal] = useState(false);
 
   if (loading)
     return (
       <p className="text-[#5c3a0d] dark:text-amber-100">Loading Boards...</p>
     );
+
   if (error)
     return (
       <p className="text-red-600 dark:text-red-400">
         Error Loading Boards: {error.message}
       </p>
     );
+
+  const handleConfirmDelete = async () => {
+    if (!selectedBoardId) return;
+    await deleteBoard({ variables: { boardId: selectedBoardId } });
+    setShowModal(false);
+    setSelectedBoardId(null);
+    refetch();
+  };
+
+  const handleCancelDelete = () => {
+    setShowModal(false);
+    setSelectedBoardId(null);
+  };
 
   return (
     <div className="p-6">
@@ -53,7 +66,7 @@ const BoardList = () => {
         </div>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {data?.boards.map((board: Board) => (
+          {boardsData.map((board: Board) => (
             <div
               key={board.id}
               className="relative group border-2 border-amber-200 dark:border-slate-600 rounded-xl 
@@ -62,7 +75,10 @@ const BoardList = () => {
                  bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-700"
             >
               <button
-                onClick={() => handleDelete(board.id)}
+                onClick={() => {
+                  setSelectedBoardId(board.id);
+                  setShowModal(true);
+                }}
                 className="absolute top-2 right-2 text-red-600 dark:text-red-400 
                  hover:text-red-800 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 
                  px-2 py-1 rounded text-xs transition-colors duration-200 z-10"
@@ -71,7 +87,7 @@ const BoardList = () => {
                 <Trash2 className="w-4 h-4" />
               </button>
 
-              <Link to={`/tasks/${board.id}`} className="block p-5 h-full">
+              <Link to={`/board/${board.id}`} className="block p-5 h-full">
                 <div className="flex justify-between items-start mb-3">
                   <div className="flex items-center gap-2">
                     <GitBranch className="w-4 h-4 text-[#5c3a0d] dark:text-amber-300" />
@@ -126,7 +142,7 @@ const BoardList = () => {
           ))}
         </div>
 
-        {data?.boards.length === 0 && (
+        {boardsData.length === 0 && (
           <div className="text-center py-12">
             <LayoutDashboard className="mx-auto w-12 h-12 text-[#5c3a0d] dark:text-amber-300 mb-4" />
             <h3 className="text-xl font-semibold text-[#5c3a0d] dark:text-amber-100 mb-2">
@@ -149,34 +165,16 @@ const BoardList = () => {
           <CreateBoardForm onCreated={refetch} />
         </div>
       </div>
+
+      <ConfirmDeleteModal
+        isOpen={showModal}
+        title="Delete Board"
+        description="Are you sure you want to delete this board? This action cannot be undone."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
-};
-
-const getStatusIcon = (status: string) => {
-  switch (status.toUpperCase()) {
-    case "DONE":
-      return <Code2 className="w-4 h-4 text-green-600 dark:text-green-300" />;
-    case "IN_PROGRESS":
-      return (
-        <SearchCheck className="w-4 h-4 text-blue-600 dark:text-blue-300" />
-      );
-    case "TODO":
-    default:
-      return <ListTodo className="w-4 h-4 text-zinc-600 dark:text-zinc-200" />;
-  }
-};
-
-const getStatusLabel = (status: string) => {
-  switch (status.toUpperCase()) {
-    case "DONE":
-      return "Completed";
-    case "IN_PROGRESS":
-      return "In Progress";
-    case "TODO":
-    default:
-      return "To Do";
-  }
 };
 
 export default BoardList;
