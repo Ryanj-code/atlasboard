@@ -4,11 +4,34 @@ query GetBoards {
     id
     title
     description
+    createdAt
+    updatedAt
     tasks {
       id
       title
       status
       dueDate
+    }
+  }
+}
+
+# Get a board based on ID
+query GetBoard($boardId: ID!) {
+  getBoard(boardId: $boardId) {
+    id
+    title
+    description
+    createdAt
+    updatedAt
+    tasks {
+      id
+      title
+      status
+      dueDate
+    }
+    members {
+      userId
+      role
     }
   }
 }
@@ -19,6 +42,7 @@ mutation CreateBoard($title: String!, $description: String) {
     id
     title
     description
+    createdAt
   }
 }
 
@@ -31,11 +55,7 @@ mutation DeleteBoard($boardId: ID!) {
 }
 
 # Add board member
-mutation AddBoardMember(
-  $boardId: String!
-  $userId: String!
-  $role: BoardRole!
-) {
+mutation AddBoardMember($boardId: String!, $userId: String!, $role: BoardRole!) {
   addBoardMember(boardId: $boardId, userId: $userId, role: $role) {
     id
     boardId
@@ -46,16 +66,39 @@ mutation AddBoardMember(
 }
 
 # Update board member
-mutation UpdateBoardMember(
-  $boardId: String!
-  $userId: String!
-  $role: BoardRole!
-) {
+mutation UpdateBoardMember($boardId: String!, $userId: String!, $role: BoardRole!) {
   updateBoardMember(boardId: $boardId, userId: $userId, role: $role) {
     id
     boardId
     userId
     role
     createdAt
+  }
+}
+
+mutation RemoveBoardMember($boardId: String!, $userId: String!) {
+  removeBoardMember(boardId: $boardId, userId: $userId) {
+    id
+    boardId
+    userId
+    role
+    createdAt
+  }
+}
+
+# Subscription for invited boards
+subscription BoardInvited {
+  boardInvited {
+    id
+    title
+    description
+    createdAt
+    updatedAt
+    tasks {
+      id
+      title
+      status
+      dueDate
+    }
   }
 }

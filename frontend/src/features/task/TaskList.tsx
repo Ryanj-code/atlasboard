@@ -13,9 +13,10 @@ import { useGetBoards } from "@/hooks/useGetBoards";
 
 type TaskListProps = {
   boardId: string;
+  boardTitle: string;
 };
 
-const TaskList = ({ boardId }: TaskListProps) => {
+const TaskList = ({ boardId, boardTitle }: TaskListProps) => {
   const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
     variables: { boardId },
   });
@@ -57,23 +58,19 @@ const TaskList = ({ boardId }: TaskListProps) => {
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-10 space-y-10">
+    <div className="max-w-7xl mx-auto px-6 py-6 space-y-10">
       <div>
         <h2 className="text-3xl font-extrabold text-amber-800 dark:text-amber-100 mb-2">
-          Tasks Overview
+          {boardTitle}
         </h2>
-        <p className="text-zinc-600 dark:text-zinc-300">
-          Organize your work across different statuses.
-        </p>
+        <p className="text-zinc-600 dark:text-zinc-300">Current tasks for this board.</p>
       </div>
 
       {/* Task creation form */}
       <TaskForm onSubmit={handleCreate} />
 
       {loading && (
-        <p className="text-center text-zinc-600 dark:text-zinc-300">
-          Loading tasks...
-        </p>
+        <p className="text-center text-zinc-600 dark:text-zinc-300">Loading tasks...</p>
       )}
       {error && (
         <p className="text-center text-red-600 dark:text-red-400">

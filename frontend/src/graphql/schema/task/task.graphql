@@ -27,7 +27,7 @@ mutation UpdateTask(
   $id: ID!
   $title: String
   $status: TaskStatus
-  $dueDate: String
+  $dueDate: DateTime
 ) {
   updateTask(id: $id, title: $title, status: $status, dueDate: $dueDate) {
     id

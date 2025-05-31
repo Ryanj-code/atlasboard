@@ -4,18 +4,22 @@ import {
   Observable,
   createHttpLink,
   from,
+  split,
 } from "@apollo/client";
+import { getMainDefinition } from "@apollo/client/utilities";
+import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
+import { createClient } from "graphql-ws";
 import { onError } from "@apollo/client/link/error";
 import { setContext } from "@apollo/client/link/context";
 import { getAccessToken, setAccessToken } from "@/lib/accessToken";
 import axios from "axios";
 
-// Create normal HTTP link
+// Create HTTP Link
 const httpLink = createHttpLink({
   uri: import.meta.env.VITE_GRAPHQL_URI,
 });
 
-// Auth link to attach accessToken
+// Create Auth Link
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken();
   return {
@@ -26,7 +30,7 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-// Error link to handle UNAUTHENTICATED
+// Create Error Link for UNAUTHENTICATED and token refresh
 const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   if (graphQLErrors) {
     for (const err of graphQLErrors) {
@@ -77,8 +81,31 @@ const errorLink = onError(({ graphQLErrors, operation, forward }) => {
   }
 });
 
+// Create WebSocket Link
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: import.meta.env.VITE_GRAPHQL_WS_URI,
+    connectionParams: () => ({
+      authorization: getAccessToken() ? `Bearer ${getAccessToken()}` : "",
+    }),
+  })
+);
+
+// Create Split Link (route based on operation type)
+const splitLink = split(
+  ({ query }) => {
+    const def = getMainDefinition(query);
+    return (
+      def.kind === "OperationDefinition" && def.operation === "subscription"
+    );
+  },
+  wsLink,
+  from([errorLink, authLink, httpLink]) // HTTP + error + auth
+);
+
+// Create Apollo Client
 const client = new ApolloClient({
-  link: from([errorLink, authLink, httpLink]),
+  link: splitLink,
   cache: new InMemoryCache(),
 });
 

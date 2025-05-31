@@ -9,8 +9,10 @@ import BoardList from "../board/BoardList";
 import { LayoutDashboard, ListTodo, Calendar } from "lucide-react";
 import { SummaryCard } from "./SummaryCard";
 import { getStatusIcon, getStatusLabel } from "@/utils/utils";
+import { useAuth } from "@/contexts/AuthContext";
 
 export const Dashboard = () => {
+  const { user } = useAuth();
   const { data, loading, error } = useQuery(GetBoardsDocument);
 
   const boards = data?.boards || [];
@@ -45,7 +47,7 @@ export const Dashboard = () => {
     <div className="max-w-7xl mx-auto px-6 py-10 space-y-10">
       <div>
         <h1 className="text-3xl font-extrabold text-amber-800 dark:text-amber-100">
-          Welcome back 👋
+          Welcome back, {user?.username}
         </h1>
         <p className="text-zinc-700 dark:text-zinc-300 mt-2">
           Here’s an overview of your boards and task progress.
@@ -66,9 +68,7 @@ export const Dashboard = () => {
 
         {/* Task Progress */}
         <SummaryCard
-          icon={
-            <ListTodo className="w-5 h-5 text-amber-700 dark:text-amber-300" />
-          }
+          icon={<ListTodo className="w-5 h-5 text-amber-700 dark:text-amber-300" />}
           title="Task Progress"
           value={
             <ul className="text-sm text-zinc-700 dark:text-zinc-300 space-y-1">
@@ -91,9 +91,7 @@ export const Dashboard = () => {
 
         {/* Upcoming Deadlines */}
         <SummaryCard
-          icon={
-            <Calendar className="w-5 h-5 text-amber-700 dark:text-amber-300" />
-          }
+          icon={<Calendar className="w-5 h-5 text-amber-700 dark:text-amber-300" />}
           title="Upcoming Deadlines"
           value={
             <ul className="text-sm text-zinc-700 dark:text-zinc-300 space-y-1">

@@ -1,0 +1,98 @@
+import { useParams } from "react-router-dom";
+import { useQuery } from "@apollo/client";
+import { GetBoardDocument, type BoardMember } from "@/graphql/generated/graphql";
+import TaskList from "../task/TaskList";
+import BoardMembers from "./BoardMembers";
+import { AlertTriangle } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react";
+
+const BoardDetail = () => {
+  const { user } = useAuth();
+  const { boardId } = useParams<{ boardId: string }>();
+  const [activeTab, setActiveTab] = useState<"tasks" | "members">("tasks");
+
+  const { data, loading, error } = useQuery(GetBoardDocument, {
+    variables: { boardId: boardId ?? "" },
+    skip: !boardId,
+  });
+
+  if (!user || !boardId || loading) {
+    return (
+      <div className="text-center py-10 text-zinc-700 dark:text-zinc-300">
+        Loading board details...
+      </div>
+    );
+  }
+
+  if (error || !data?.getBoard) {
+    return (
+      <div className="max-w-3xl mx-auto px-6 py-16 text-center bg-gradient-to-br from-red-50 to-orange-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl shadow-md border border-red-200 dark:border-slate-600">
+        <div className="flex justify-center mb-4">
+          <AlertTriangle className="w-10 h-10 text-red-500 dark:text-red-400 animate-pulse" />
+        </div>
+        <h2 className="text-2xl font-bold text-red-700 dark:text-red-300 mb-2">
+          Board Not Found
+        </h2>
+        <p className="text-zinc-700 dark:text-zinc-300">
+          Please select a valid board to view its tasks. You may have followed an invalid
+          link or the board no longer exists.
+        </p>
+      </div>
+    );
+  }
+
+  const currentMember = data.getBoard.members.find(
+    (member: BoardMember) => member.userId === user.id
+  );
+
+  if (!currentMember) {
+    return (
+      <div className="text-center py-10 text-zinc-700 dark:text-zinc-300">
+        You are not a member of this board.
+      </div>
+    );
+  }
+
+  const board = data.getBoard;
+
+  return (
+    <div className="max-w-5xl mx-auto px-4 py-6">
+      <h1 className="text-2xl font-bold text-[#5c3a0d] dark:text-amber-100 mb-4">
+        {board.title}
+      </h1>
+
+      {/* Tab Header */}
+      <div className="flex gap-4 mb-6 border-b border-amber-200 dark:border-slate-600">
+        <button
+          onClick={() => setActiveTab("tasks")}
+          className={`px-4 py-2 text-sm font-medium ${
+            activeTab === "tasks"
+              ? "border-b-2 border-amber-500 text-amber-600 dark:text-amber-300"
+              : "text-zinc-600 dark:text-zinc-400"
+          }`}
+        >
+          Tasks
+        </button>
+        <button
+          onClick={() => setActiveTab("members")}
+          className={`px-4 py-2 text-sm font-medium ${
+            activeTab === "members"
+              ? "border-b-2 border-amber-500 text-amber-600 dark:text-amber-300"
+              : "text-zinc-600 dark:text-zinc-400"
+          }`}
+        >
+          Members
+        </button>
+      </div>
+
+      {/* Tab Content */}
+      {activeTab === "tasks" && <TaskList boardId={board.id} boardTitle={board.title} />}
+      {activeTab === "members" && (
+        <BoardMembers boardId={board.id} currentUserRole={currentMember.role} />
+      )}
+    </div>
+  );
+};
+
+export default BoardDetail;

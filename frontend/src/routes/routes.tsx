@@ -7,7 +7,7 @@ import { AppLayout } from "@/layouts/AppLayout";
 import { AuthLayout } from "@/layouts/AuthLayout";
 import { Landing } from "@/features/landing/Landing";
 import Settings from "@/features/settings/Settings";
-import TaskDisplay from "@/features/task/TaskDisplay";
+import BoardDetail from "@/features/board/BoardDetail";
 
 export const routes: RouteObject[] = [
   {
@@ -26,7 +26,7 @@ export const routes: RouteObject[] = [
     children: [
       { path: "/dashboard", element: <Dashboard /> },
       { path: "/settings", element: <Settings /> },
-      { path: "/board/:boardId", element: <TaskDisplay /> },
+      { path: "/board/:boardId", element: <BoardDetail /> },
       // Add more authenticated routes here
     ],
   },
