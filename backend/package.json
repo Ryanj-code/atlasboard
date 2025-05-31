@@ -18,13 +18,17 @@
     "bcrypt": "^6.0.0",
     "dotenv": "^16.5.0",
     "graphql": "^16.11.0",
+    "graphql-subscriptions": "^3.0.0",
     "graphql-tag": "^2.12.6",
-    "jsonwebtoken": "^9.0.2"
+    "graphql-ws": "^6.0.5",
+    "jsonwebtoken": "^9.0.2",
+    "ws": "^8.18.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
     "@types/cors": "^2.8.18",
     "@types/jsonwebtoken": "^9.0.9",
+    "@types/ws": "^8.18.1",
     "prisma": "^6.8.2",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.3"

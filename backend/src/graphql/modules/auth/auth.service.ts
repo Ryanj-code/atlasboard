@@ -10,11 +10,7 @@ const prisma = new PrismaClient();
 
 export async function signup(
   _: any,
-  {
-    email,
-    username,
-    password,
-  }: { email: string; username: string; password: string }
+  { email, username, password }: { email: string; username: string; password: string }
 ) {
   const existingUser = await prisma.user.findUnique({ where: { email } });
   if (existingUser) throw new Error("Email already in use");
@@ -70,9 +66,7 @@ export async function logout(_: any, { token }: { token: string }) {
     return true;
   } catch (err) {
     console.error("Logout failed:", err);
-    throw new Error(
-      "Failed to logout. Token may be invalid or already deleted."
-    );
+    throw new Error("Failed to logout. Token may be invalid or already deleted.");
   }
 }
 
@@ -84,11 +78,7 @@ export async function refreshToken(_: any, { token }: { token: string }) {
       where: { token },
     });
 
-    if (
-      !session ||
-      session.userId !== userId ||
-      session.expiresAt < new Date()
-    ) {
+    if (!session || session.userId !== userId || session.expiresAt < new Date()) {
       throw new Error("Invalid or expired refresh token");
     }
 

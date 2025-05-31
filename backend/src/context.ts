@@ -1,5 +1,4 @@
 import { PrismaClient } from "../prisma/generated";
-import { Request } from "express";
 import jwt from "jsonwebtoken";
 
 const prisma = new PrismaClient();
@@ -10,8 +9,14 @@ export interface Context {
   userId?: string | null;
 }
 
-export function createContext(req?: Request): Context {
-  const authHeader = req?.headers.authorization;
+type RequestLike = {
+  headers?: {
+    authorization?: string;
+  };
+};
+
+export function createContext(req?: RequestLike): Context {
+  const authHeader = req?.headers?.authorization;
   let userId: string | null = null;
 
   if (authHeader?.startsWith("Bearer ")) {

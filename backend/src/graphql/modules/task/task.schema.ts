@@ -11,10 +11,10 @@ export const taskTypeDefs = gql`
     id: ID!
     title: String!
     status: TaskStatus!
-    dueDate: String
+    dueDate: DateTime
     boardId: ID!
-    createdAt: String!
-    updatedAt: String!
+    createdAt: DateTime!
+    updatedAt: DateTime!
   }
 
   type Query {
@@ -23,12 +23,7 @@ export const taskTypeDefs = gql`
 
   type Mutation {
     createTask(boardId: ID!, title: String!, status: TaskStatus!): Task!
-    updateTask(
-      id: ID!
-      title: String
-      status: TaskStatus
-      dueDate: String
-    ): Task!
+    updateTask(id: ID!, title: String, status: TaskStatus, dueDate: DateTime): Task!
     deleteTask(id: ID!): Task!
   }
 `;

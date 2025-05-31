@@ -9,11 +9,7 @@ export async function me(_parent: unknown, _args: {}, context: Context) {
   });
 }
 
-export async function boards(
-  parent: { id: string },
-  _args: {},
-  context: Context
-) {
+export async function boards(parent: { id: string }, _args: {}, context: Context) {
   requireAuth(context);
 
   return context.prisma.board.findMany({
