@@ -1,6 +1,7 @@
 import { Context } from "../../../context";
 import { requireAuth, requireBoardRole } from "../../utils";
 import { BoardRole, TaskStatus } from "../../../../prisma/generated";
+import { pubsub } from "../../pubsub";
 
 export async function tasks(
   _parent: unknown,
@@ -32,13 +33,19 @@ export async function createTask(
     BoardRole.EDITOR,
   ]);
 
-  return context.prisma.task.create({
+  const newTask = await context.prisma.task.create({
     data: {
       boardId: args.boardId,
       title: args.title,
       status: args.status,
     },
   });
+
+  await pubsub.publish("TASK_CREATED", {
+    taskCreated: newTask,
+  });
+
+  return newTask;
 }
 
 export async function updateTask(
@@ -65,7 +72,7 @@ export async function updateTask(
     dueDate = new Date(args.dueDate);
   }
 
-  return context.prisma.task.update({
+  const updatedTask = await context.prisma.task.update({
     where: { id: args.id },
     data: {
       title: args.title,
@@ -73,6 +80,12 @@ export async function updateTask(
       dueDate,
     },
   });
+
+  await pubsub.publish("TASK_UPDATED", {
+    taskUpdated: updatedTask,
+  });
+
+  return updatedTask;
 }
 
 export async function deleteTask(
@@ -94,7 +107,13 @@ export async function deleteTask(
     BoardRole.EDITOR,
   ]);
 
-  return context.prisma.task.delete({
+  const deletedTask = await context.prisma.task.delete({
     where: { id: args.id },
   });
+
+  await pubsub.publish("TASK_DELETED", {
+    taskDeleted: deletedTask,
+  });
+
+  return deletedTask;
 }

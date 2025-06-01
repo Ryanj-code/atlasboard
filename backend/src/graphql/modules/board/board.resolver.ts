@@ -1,6 +1,5 @@
 import {
   addBoardMember,
-  boardInvited,
   boards,
   createBoard,
   deleteBoard,
@@ -9,6 +8,12 @@ import {
   tasks,
   updateBoardMember,
 } from "./board.service";
+import {
+  boardDeleted,
+  boardInvited,
+  boardMemberRemoved,
+  boardMemberUpdated,
+} from "./board.subscription";
 
 export const boardResolvers = {
   Query: {
@@ -26,6 +31,9 @@ export const boardResolvers = {
 
   Subscription: {
     boardInvited,
+    boardDeleted,
+    boardMemberUpdated,
+    boardMemberRemoved,
   },
 
   Board: {

@@ -26,4 +26,10 @@ export const taskTypeDefs = gql`
     updateTask(id: ID!, title: String, status: TaskStatus, dueDate: DateTime): Task!
     deleteTask(id: ID!): Task!
   }
+
+  type Subscription {
+    taskCreated(boardId: ID!): Task!
+    taskUpdated(boardId: ID!): Task!
+    taskDeleted(boardId: ID!): Task!
+  }
 `;

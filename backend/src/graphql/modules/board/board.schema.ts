@@ -44,5 +44,9 @@ export const boardTypeDefs = gql`
 
   type Subscription {
     boardInvited: Board!
+    boardDeleted: Board!
+
+    boardMemberUpdated(boardId: ID!): BoardMember!
+    boardMemberRemoved(boardId: ID!): BoardMember!
   }
 `;

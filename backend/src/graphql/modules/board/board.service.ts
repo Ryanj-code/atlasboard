@@ -4,6 +4,7 @@ import { BoardMember, BoardRole } from "../../../../prisma/generated";
 import { pubsub } from "../../pubsub";
 import { GraphQLError } from "graphql";
 import { withFilter } from "graphql-subscriptions";
+import { boardDeleted, boardMemberUpdated } from "./board.subscription";
 
 export async function boards(_parent: unknown, _args: {}, context: Context) {
   const userId = requireAuth(context);
@@ -82,6 +83,17 @@ export async function deleteBoard(
 
   await requireBoardRole(context.prisma, userId, boardId, [BoardRole.OWNER]);
 
+  const board = await context.prisma.board.findUnique({
+    where: { id: boardId },
+    include: { tasks: true, members: true },
+  });
+
+  if (board) {
+    pubsub.publish("BOARD_DELETED", {
+      boardDeleted: board,
+    });
+  }
+
   return context.prisma.board.delete({
     where: { id: boardId },
   });
@@ -123,12 +135,18 @@ export async function updateBoardMember(
 
   await requireBoardRole(context.prisma, currentUserId, boardId, [BoardRole.OWNER]);
 
-  return context.prisma.boardMember.update({
+  const updatedMember = await context.prisma.boardMember.update({
     where: {
       userId_boardId: { userId, boardId },
     },
     data: { role },
   });
+
+  pubsub.publish("BOARD_MEMBER_UPDATED", {
+    boardMemberUpdated: updatedMember,
+  });
+
+  return updatedMember;
 }
 
 export async function removeBoardMember(
@@ -141,7 +159,7 @@ export async function removeBoardMember(
   // Only an OWNER should be able to remove members
   await requireBoardRole(context.prisma, currentUserId, args.boardId, [BoardRole.OWNER]);
 
-  return context.prisma.boardMember.delete({
+  const removedMember = await context.prisma.boardMember.delete({
     where: {
       userId_boardId: {
         userId: args.userId,
@@ -149,22 +167,13 @@ export async function removeBoardMember(
       },
     },
   });
-}
 
-export const boardInvited = {
-  subscribe: withFilter(
-    () => {
-      console.log("🟢 Subscribing to BOARD_INVITED");
-      return pubsub.asyncIterableIterator("BOARD_INVITED");
-    },
-    (payload, _args, context) => {
-      const userId = context.userId;
-      console.log("📥 Checking filter match for userId:", userId);
-      const members = payload.boardInvited?.members ?? [];
-      return members.some((m: BoardMember) => m.userId === userId);
-    }
-  ),
-};
+  await pubsub.publish("BOARD_MEMBER_REMOVED", {
+    boardMemberRemoved: removedMember,
+  });
+
+  return removedMember;
+}
 
 export async function tasks(parent: { id: string }, _args: {}, context: Context) {
   const userId = requireAuth(context);

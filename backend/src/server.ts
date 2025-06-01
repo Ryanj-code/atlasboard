@@ -45,7 +45,6 @@ useServer(
       };
 
       const context = createContext(fakeReq);
-      console.log("🙋‍♂️ WebSocket user context:", context.userId);
       return context;
     },
   },
