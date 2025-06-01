@@ -95,18 +95,34 @@ const wsLink = new GraphQLWsLink(
 const splitLink = split(
   ({ query }) => {
     const def = getMainDefinition(query);
-    return (
-      def.kind === "OperationDefinition" && def.operation === "subscription"
-    );
+    return def.kind === "OperationDefinition" && def.operation === "subscription";
   },
   wsLink,
   from([errorLink, authLink, httpLink]) // HTTP + error + auth
 );
 
+// Current cache set up for apollo client
+const cache = new InMemoryCache({
+  typePolicies: {
+    Query: {
+      fields: {
+        boards: {
+          // Treat all boards under same field, regardless of args
+          keyArgs: false,
+          merge(_, incoming) {
+            // Fully replace boards list with incoming
+            return incoming;
+          },
+        },
+      },
+    },
+  },
+});
+
 // Create Apollo Client
 const client = new ApolloClient({
   link: splitLink,
-  cache: new InMemoryCache(),
+  cache,
 });
 
 export default client;

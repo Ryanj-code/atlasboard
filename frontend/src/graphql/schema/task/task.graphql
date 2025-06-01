@@ -7,6 +7,7 @@ query GetTasks($boardId: ID!) {
     dueDate
     createdAt
     updatedAt
+    boardId
   }
 }
 
@@ -23,12 +24,7 @@ mutation CreateTask($boardId: ID!, $title: String!, $status: TaskStatus!) {
 }
 
 # Update a task
-mutation UpdateTask(
-  $id: ID!
-  $title: String
-  $status: TaskStatus
-  $dueDate: DateTime
-) {
+mutation UpdateTask($id: ID!, $title: String, $status: TaskStatus, $dueDate: DateTime) {
   updateTask(id: $id, title: $title, status: $status, dueDate: $dueDate) {
     id
     title
@@ -42,5 +38,44 @@ mutation UpdateTask(
 mutation DeleteTask($id: ID!) {
   deleteTask(id: $id) {
     id
+  }
+}
+
+# Subscription for when a task is created
+subscription TaskCreated($boardId: ID!) {
+  taskCreated(boardId: $boardId) {
+    id
+    title
+    status
+    dueDate
+    createdAt
+    updatedAt
+    boardId
+  }
+}
+
+# Subscription for when a task is updated
+subscription TaskUpdated($boardId: ID!) {
+  taskUpdated(boardId: $boardId) {
+    id
+    title
+    status
+    dueDate
+    createdAt
+    updatedAt
+    boardId
+  }
+}
+
+# Subscription for when a task is deleted
+subscription TaskDeleted($boardId: ID!) {
+  taskDeleted(boardId: $boardId) {
+    id
+    title
+    status
+    dueDate
+    createdAt
+    updatedAt
+    boardId
   }
 }

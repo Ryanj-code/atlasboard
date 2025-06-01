@@ -2,14 +2,16 @@ import { useState } from "react";
 import type { Task, TaskStatus } from "@/graphql/generated/graphql";
 import { Pencil, Trash2, Calendar, Check, X } from "lucide-react";
 import ConfirmDeleteModal from "@/components/ui/ConfirmDeleteModal";
+import { formatDateForInput } from "@/utils/utils";
 
 type TaskItemProps = {
   task: Task;
   onDelete: (id: string) => void;
   onUpdate: (id: string, updates: Partial<Task>) => void;
+  currentUserRole: "OWNER" | "EDITOR" | "VIEWER";
 };
 
-const TaskItem = ({ task, onDelete, onUpdate }: TaskItemProps) => {
+const TaskItem = ({ task, onDelete, onUpdate, currentUserRole }: TaskItemProps) => {
   const [editing, setEditing] = useState(false);
   const [title, setTitle] = useState(task.title);
   const [status, setStatus] = useState(task.status);
@@ -22,9 +24,7 @@ const TaskItem = ({ task, onDelete, onUpdate }: TaskItemProps) => {
   };
 
   const isOverdue =
-    task.dueDate &&
-    new Date(task.dueDate) < new Date() &&
-    task.status !== "DONE";
+    task.dueDate && new Date(task.dueDate) < new Date() && task.status !== "DONE";
 
   return (
     <div className="group bg-gradient-to-br from-amber-50 to-orange-50 dark:from-slate-800 dark:to-slate-700 border border-amber-200 dark:border-slate-600 hover:border-amber-300 dark:hover:border-slate-500 p-5 rounded-2xl shadow-sm hover:shadow-md transition-all duration-200 space-y-3">
@@ -54,7 +54,7 @@ const TaskItem = ({ task, onDelete, onUpdate }: TaskItemProps) => {
               <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-zinc-400" />
               <input
                 type="date"
-                value={dueDate}
+                value={formatDateForInput(dueDate)}
                 onChange={(e) => setDueDate(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-zinc-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-zinc-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
               />
@@ -110,22 +110,24 @@ const TaskItem = ({ task, onDelete, onUpdate }: TaskItemProps) => {
             </div>
           </div>
 
-          <div className="flex gap-1 transition-opacity duration-200">
-            <button
-              onClick={() => setEditing(true)}
-              title="Edit"
-              className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200"
-            >
-              <Pencil className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setShowModal(true)}
-              title="Delete"
-              className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          </div>
+          {(currentUserRole === "OWNER" || currentUserRole === "EDITOR") && (
+            <div className="flex gap-1 transition-opacity duration-200">
+              <button
+                onClick={() => setEditing(true)}
+                title="Edit"
+                className="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-all duration-200"
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setShowModal(true)}
+                title="Delete"
+                className="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-all duration-200"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          )}
 
           <ConfirmDeleteModal
             isOpen={showModal}

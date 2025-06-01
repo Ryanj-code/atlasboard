@@ -6,16 +6,25 @@ import BoardMembers from "./BoardMembers";
 import { AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
+import { useBoardMemberSubscriptions } from "@/hooks/useBoardMemberSubscriptions";
+import { useBoardSubscriptions } from "@/hooks/useBoardSubscriptions";
 
 const BoardDetail = () => {
   const { user } = useAuth();
   const { boardId } = useParams<{ boardId: string }>();
-  const [activeTab, setActiveTab] = useState<"tasks" | "members">("tasks");
 
-  const { data, loading, error } = useQuery(GetBoardDocument, {
+  const [activeTab, setActiveTab] = useState<"tasks" | "members">("tasks");
+  const [roleChanged, setRoleChanged] = useState<string | null>(null);
+
+  const { data, loading, error, refetch } = useQuery(GetBoardDocument, {
     variables: { boardId: boardId ?? "" },
     skip: !boardId,
   });
+
+  if (user && boardId) {
+    useBoardMemberSubscriptions(boardId, user.id, refetch, setRoleChanged);
+    useBoardSubscriptions({ refetchBoards: refetch, currentBoardId: boardId });
+  }
 
   if (!user || !boardId || loading) {
     return (
@@ -87,9 +96,17 @@ const BoardDetail = () => {
       </div>
 
       {/* Tab Content */}
-      {activeTab === "tasks" && <TaskList boardId={board.id} boardTitle={board.title} />}
+      {activeTab === "tasks" && (
+        <TaskList board={board} currentUserRole={currentMember.role} />
+      )}
       {activeTab === "members" && (
         <BoardMembers boardId={board.id} currentUserRole={currentMember.role} />
+      )}
+
+      {roleChanged && (
+        <div className="mb-4 p-3 text-sm bg-blue-100 text-blue-800 rounded">
+          Your role has been updated to <strong>{roleChanged}</strong>.
+        </div>
       )}
     </div>
   );

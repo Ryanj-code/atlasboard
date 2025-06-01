@@ -1,35 +1,22 @@
 import { useState } from "react";
 import { LayoutDashboard, PlusSquare } from "lucide-react";
-import { useMutation, useSubscription } from "@apollo/client";
-import {
-  BoardInvitedDocument,
-  DeleteBoardDocument,
-  type Board,
-} from "@/graphql/generated/graphql";
+import { useMutation } from "@apollo/client";
+import { DeleteBoardDocument, type Board } from "@/graphql/generated/graphql";
 import CreateBoardForm from "./CreateBoardForm";
 import { useGetBoards } from "@/hooks/useGetBoards";
 import ConfirmDeleteModal from "@/components/ui/ConfirmDeleteModal";
 import BoardCard from "./BoardCard";
+import { useBoardSubscriptions } from "@/hooks/useBoardSubscriptions";
 
 const BoardList = () => {
   const { boards, loading, error, refetch } = useGetBoards();
   const [deleteBoard] = useMutation(DeleteBoardDocument);
+  useBoardSubscriptions({ refetchBoards: refetch });
 
   const boardsData = boards ?? [];
-  // console.log(boardsData);
 
   const [selectedBoardId, setSelectedBoardId] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
-
-  useSubscription(BoardInvitedDocument, {
-    onData: ({ data }) => {
-      console.log(data);
-      const invitedBoard = data.data?.boardInvited;
-      if (invitedBoard) {
-        refetch(); // GetBoards refetch
-      }
-    },
-  });
 
   if (loading)
     return <p className="text-[#5c3a0d] dark:text-amber-100">Loading Boards...</p>;

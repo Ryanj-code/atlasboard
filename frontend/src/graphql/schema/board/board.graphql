@@ -86,7 +86,7 @@ mutation RemoveBoardMember($boardId: String!, $userId: String!) {
   }
 }
 
-# Subscription for invited boards
+# Subscription for board invite
 subscription BoardInvited {
   boardInvited {
     id
@@ -100,5 +100,44 @@ subscription BoardInvited {
       status
       dueDate
     }
+  }
+}
+
+# Subscription for board deletion
+subscription BoardDeleted {
+  boardDeleted {
+    id
+    title
+    description
+    createdAt
+    updatedAt
+    tasks {
+      id
+      title
+      status
+      dueDate
+    }
+  }
+}
+
+# Subscription for board member role being updated
+subscription BoardMemberUpdated($boardId: ID!) {
+  boardMemberUpdated(boardId: $boardId) {
+    id
+    boardId
+    userId
+    role
+    createdAt
+  }
+}
+
+# Subscription for board member being removed
+subscription BoardMemberRemoved($boardId: ID!) {
+  boardMemberRemoved(boardId: $boardId) {
+    id
+    boardId
+    userId
+    role
+    createdAt
   }
 }

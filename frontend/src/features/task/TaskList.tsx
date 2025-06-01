@@ -6,22 +6,26 @@ import {
   UpdateTaskDocument,
   type TaskStatus,
   type Task,
+  type Board,
 } from "@/graphql/generated/graphql";
 import TaskForm from "./TaskForm";
 import TaskItem from "./TaskItem";
 import { useGetBoards } from "@/hooks/useGetBoards";
+import { useTaskSubscriptions } from "@/hooks/useTaskSubscriptions";
 
 type TaskListProps = {
-  boardId: string;
-  boardTitle: string;
+  board: Board;
+  currentUserRole: "OWNER" | "EDITOR" | "VIEWER";
 };
 
-const TaskList = ({ boardId, boardTitle }: TaskListProps) => {
+const TaskList = ({ board, currentUserRole }: TaskListProps) => {
+  const { id: boardId, title: boardTitle } = board;
   const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
     variables: { boardId },
   });
 
   const { refetch: refetchBoard } = useGetBoards();
+  useTaskSubscriptions({ boardId, refetchTask: refetch, refetchBoard });
 
   const [createTask] = useMutation(CreateTaskDocument);
   const [deleteTask] = useMutation(DeleteTaskDocument);
@@ -45,10 +49,10 @@ const TaskList = ({ boardId, boardTitle }: TaskListProps) => {
     refetchBoard();
   };
 
-  const grouped = {
-    TODO: [] as Task[],
-    IN_PROGRESS: [] as Task[],
-    DONE: [] as Task[],
+  const grouped: Record<TaskStatus, Task[]> = {
+    TODO: [],
+    IN_PROGRESS: [],
+    DONE: [],
   };
 
   data?.tasks.forEach((task: Task) => {
@@ -67,7 +71,9 @@ const TaskList = ({ boardId, boardTitle }: TaskListProps) => {
       </div>
 
       {/* Task creation form */}
-      <TaskForm onSubmit={handleCreate} />
+      {(currentUserRole === "OWNER" || currentUserRole === "EDITOR") && (
+        <TaskForm onSubmit={handleCreate} />
+      )}
 
       {loading && (
         <p className="text-center text-zinc-600 dark:text-zinc-300">Loading tasks...</p>
@@ -100,6 +106,7 @@ const TaskList = ({ boardId, boardTitle }: TaskListProps) => {
                     task={task}
                     onDelete={handleDelete}
                     onUpdate={handleUpdate}
+                    currentUserRole={currentUserRole}
                   />
                 ))
               ) : (
