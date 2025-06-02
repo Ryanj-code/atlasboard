@@ -8,6 +8,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { useBoardMemberSubscriptions } from "@/hooks/useBoardMemberSubscriptions";
 import { useBoardSubscriptions } from "@/hooks/useBoardSubscriptions";
+import EditBoardForm from "./EditBoardForm";
 
 const BoardDetail = () => {
   const { user } = useAuth();
@@ -17,14 +18,12 @@ const BoardDetail = () => {
   const [roleChanged, setRoleChanged] = useState<string | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GetBoardDocument, {
-    variables: { boardId: boardId ?? "" },
+    variables: { boardId: boardId },
     skip: !boardId,
   });
 
-  if (user && boardId) {
-    useBoardMemberSubscriptions(boardId, user.id, refetch, setRoleChanged);
-    useBoardSubscriptions({ refetchBoards: refetch, currentBoardId: boardId });
-  }
+  useBoardMemberSubscriptions(boardId ?? "", user?.id ?? "", refetch, setRoleChanged);
+  useBoardSubscriptions({ refetchBoards: refetch, currentBoardId: boardId ?? "" });
 
   if (!user || !boardId || loading) {
     return (
@@ -34,7 +33,7 @@ const BoardDetail = () => {
     );
   }
 
-  if (error || !data?.getBoard) {
+  if (error || !data) {
     return (
       <div className="max-w-3xl mx-auto px-6 py-16 text-center bg-gradient-to-br from-red-50 to-orange-50 dark:from-slate-800 dark:to-slate-700 rounded-2xl shadow-md border border-red-200 dark:border-slate-600">
         <div className="flex justify-center mb-4">
@@ -51,7 +50,9 @@ const BoardDetail = () => {
     );
   }
 
-  const currentMember = data.getBoard.members.find(
+  const board = data.getBoard;
+
+  const currentMember = board.members.find(
     (member: BoardMember) => member.userId === user.id
   );
 
@@ -63,16 +64,12 @@ const BoardDetail = () => {
     );
   }
 
-  const board = data.getBoard;
-
   return (
     <div className="max-w-5xl mx-auto px-4 py-6">
-      <h1 className="text-2xl font-bold text-[#5c3a0d] dark:text-amber-100 mb-4">
-        {board.title}
-      </h1>
+      <EditBoardForm board={board} currentUserRole={currentMember.role} />
 
       {/* Tab Header */}
-      <div className="flex gap-4 mb-6 border-b border-amber-200 dark:border-slate-600">
+      <div className="flex gap-4 mb-4 border-b border-amber-200 dark:border-slate-600">
         <button
           onClick={() => setActiveTab("tasks")}
           className={`px-4 py-2 text-sm font-medium ${
@@ -97,10 +94,10 @@ const BoardDetail = () => {
 
       {/* Tab Content */}
       {activeTab === "tasks" && (
-        <TaskList board={board} currentUserRole={currentMember.role} />
+        <TaskList boardId={boardId} currentUserRole={currentMember.role} />
       )}
       {activeTab === "members" && (
-        <BoardMembers boardId={board.id} currentUserRole={currentMember.role} />
+        <BoardMembers boardId={boardId} currentUserRole={currentMember.role} />
       )}
 
       {roleChanged && (

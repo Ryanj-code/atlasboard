@@ -1,5 +1,6 @@
 import { PencilLine, UserMinus } from "lucide-react";
 import type { BoardRole, BoardMember } from "@/graphql/generated/graphql";
+import { useAuth } from "@/contexts/AuthContext";
 
 type MemberCardProps = {
   member: BoardMember;
@@ -20,6 +21,10 @@ const MemberCard = ({
   onUpdate,
   onDelete,
 }: MemberCardProps) => {
+  const { user } = useAuth();
+  const displayName = isSelf ? "You" : member.user?.username ?? "Unknown User";
+  const displayEmail = isSelf ? user?.email ?? "" : member.user?.email ?? "";
+
   return (
     <div className="flex items-center justify-between p-3 border rounded-lg bg-white dark:bg-slate-700 border-amber-200 dark:border-slate-600">
       <div>
@@ -30,8 +35,11 @@ const MemberCard = ({
               : "text-[#5c3a0d] dark:text-amber-100"
           }`}
         >
-          {isSelf ? "You" : `User ID: ${member.userId}`}
+          {displayName}
         </p>
+        {displayEmail && (
+          <p className="text-xs text-zinc-500 dark:text-zinc-400">{displayEmail}</p>
+        )}
         <p className="text-xs text-zinc-500 dark:text-zinc-400">Role: {member.role}</p>
       </div>
 

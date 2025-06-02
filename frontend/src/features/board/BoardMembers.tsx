@@ -5,6 +5,8 @@ import {
   type BoardMember,
   AddBoardMemberDocument,
   GetBoardDocument,
+  type User,
+  SearchUsersDocument,
 } from "@/graphql/generated/graphql";
 import { useMutation, useQuery } from "@apollo/client";
 import { useState } from "react";
@@ -23,6 +25,7 @@ const BoardMembers = ({ boardId, currentUserRole }: BoardMembersProp) => {
   const { data, loading, refetch } = useQuery(GetBoardDocument, {
     variables: { boardId },
   });
+
   const members = data?.getBoard.members ?? [];
 
   const [addMember] = useMutation(AddBoardMemberDocument);
@@ -30,16 +33,22 @@ const BoardMembers = ({ boardId, currentUserRole }: BoardMembersProp) => {
   const [removeMember] = useMutation(RemoveBoardMemberDocument);
 
   const [updating, setUpdating] = useState<Record<string, BoardRole>>({});
-  const [newUserId, setNewUserId] = useState("");
   const [newUserRole, setNewUserRole] = useState<BoardRole>("VIEWER");
 
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [pendingDeleteUserId, setPendingDeleteUserId] = useState<string | null>(null);
 
-  const handleAdd = async () => {
-    if (!newUserId) return;
-    await addMember({ variables: { boardId, userId: newUserId, role: newUserRole } });
-    setNewUserId("");
+  const [searchTerm, setSearchTerm] = useState("");
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+
+  const { data: searchResults } = useQuery(SearchUsersDocument, {
+    variables: { query: searchTerm },
+    skip: searchTerm.trim().length < 1,
+  });
+
+  const handleAdd = async (userId: string) => {
+    if (!userId) return;
+    await addMember({ variables: { boardId, userId, role: newUserRole } });
     refetch();
   };
 
@@ -101,41 +110,82 @@ const BoardMembers = ({ boardId, currentUserRole }: BoardMembersProp) => {
 
         {/* Add New Member */}
         {currentUserRole === "OWNER" && (
-          <div className="mt-8 pt-6 border-t-2 border-amber-200 dark:border-slate-600">
+          <div className="mt-10 pt-6 border-t-2 border-amber-200 dark:border-slate-600">
             <div className="flex items-center gap-2 mb-4">
               <UserPlus className="w-5 h-5 text-[#5c3a0d] dark:text-amber-300" />
-              <h3 className="text-lg font-semibold text-[#5c3a0d] dark:text-amber-100">
+              <h3 className="text-xl font-semibold text-[#5c3a0d] dark:text-amber-100">
                 Add New Member
               </h3>
             </div>
 
+            {/* Search Input */}
             <input
-              value={newUserId}
-              onChange={(e) => setNewUserId(e.target.value)}
-              placeholder="Enter user ID"
-              className="w-full px-4 py-2 border rounded-lg bg-white dark:bg-slate-700 border-amber-200 dark:border-slate-600 text-[#5c3a0d] dark:text-amber-100 placeholder-zinc-500 dark:placeholder-zinc-400"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search user by username or email"
+              className="w-full px-4 py-2 border rounded-xl bg-white dark:bg-slate-700 border-amber-200 dark:border-slate-600 text-[#5c3a0d] dark:text-amber-100 placeholder-zinc-500 dark:placeholder-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300"
             />
 
-            <div className="flex items-center gap-2 mt-3">
-              <ShieldCheck className="w-4 h-4 text-[#5c3a0d] dark:text-amber-200" />
-              <label className="text-sm text-[#5c3a0d] dark:text-amber-100">Role:</label>
-              <select
-                value={newUserRole}
-                onChange={(e) => setNewUserRole(e.target.value as BoardRole)}
-                className="px-3 py-1 rounded-lg bg-white dark:bg-slate-700 border border-amber-200 dark:border-slate-600 text-[#5c3a0d] dark:text-amber-100 text-sm"
-              >
-                <option value="EDITOR">Editor</option>
-                <option value="VIEWER">Viewer</option>
-              </select>
-            </div>
+            {/* Search Results */}
+            {searchResults?.searchUsers.length > 0 && (
+              <ul className="mt-2 bg-white dark:bg-slate-700 border border-amber-200 dark:border-slate-600 rounded-xl shadow-md max-h-48 overflow-y-auto divide-y divide-amber-100 dark:divide-slate-600">
+                {searchResults.searchUsers
+                  .filter((u: User) => u.id !== user?.id) // Exclude current user
+                  .map((user: User) => (
+                    <li
+                      key={user.id}
+                      onClick={() => {
+                        setSelectedUser(user);
+                        setSearchTerm(user.username);
+                      }}
+                      className="px-4 py-2 cursor-pointer hover:bg-amber-100 dark:hover:bg-slate-600 transition-colors"
+                    >
+                      <div className="text-sm font-medium text-[#5c3a0d] dark:text-amber-100">
+                        {user.username}
+                      </div>
+                      <div className="text-xs text-zinc-500 dark:text-zinc-400">
+                        {user.email}
+                      </div>
+                    </li>
+                  ))}
+              </ul>
+            )}
 
-            <button
-              onClick={handleAdd}
-              className="mt-4 flex items-center gap-2 px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-lg shadow-md transition"
-            >
-              <UserPlus className="w-4 h-4" />
-              Add Member
-            </button>
+            {/* Role Select & Add Button */}
+            {selectedUser && (
+              <div className="mt-4 space-y-3">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[#5c3a0d] dark:text-amber-200" />
+                  <label className="text-sm font-medium text-[#5c3a0d] dark:text-amber-100">
+                    Assign Role:
+                  </label>
+                  <select
+                    value={newUserRole}
+                    onChange={(e) => setNewUserRole(e.target.value as BoardRole)}
+                    className="px-3 py-1 rounded-lg bg-white dark:bg-slate-700 border border-amber-200 dark:border-slate-600 text-[#5c3a0d] dark:text-amber-100 text-sm focus:outline-none"
+                  >
+                    <option value="EDITOR">Editor</option>
+                    <option value="VIEWER">Viewer</option>
+                  </select>
+                </div>
+
+                <button
+                  onClick={() => {
+                    if (members.some((m: BoardMember) => m.userId === selectedUser.id)) {
+                      alert("User is already a member of this board.");
+                      return;
+                    }
+                    handleAdd(selectedUser.id);
+                    setSelectedUser(null);
+                    setSearchTerm("");
+                  }}
+                  className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-amber-500 to-orange-400 hover:brightness-110 text-white rounded-xl shadow-md text-sm font-semibold transition"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  Add Member
+                </button>
+              </div>
+            )}
           </div>
         )}
 

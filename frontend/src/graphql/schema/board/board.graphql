@@ -32,6 +32,11 @@ query GetBoard($boardId: ID!) {
     members {
       userId
       role
+      user {
+        id
+        username
+        email
+      }
     }
   }
 }
@@ -39,6 +44,16 @@ query GetBoard($boardId: ID!) {
 # Create a new board
 mutation CreateBoard($title: String!, $description: String) {
   createBoard(title: $title, description: $description) {
+    id
+    title
+    description
+    createdAt
+  }
+}
+
+# Update an existing board
+mutation updateBoard($boardId: ID!, $title: String, $description: String) {
+  updateBoard(boardId: $boardId, title: $title, description: $description) {
     id
     title
     description
@@ -89,6 +104,23 @@ mutation RemoveBoardMember($boardId: String!, $userId: String!) {
 # Subscription for board invite
 subscription BoardInvited {
   boardInvited {
+    id
+    title
+    description
+    createdAt
+    updatedAt
+    tasks {
+      id
+      title
+      status
+      dueDate
+    }
+  }
+}
+
+# Subscription for board update
+subscription BoardUpdated {
+  boardUpdated {
     id
     title
     description

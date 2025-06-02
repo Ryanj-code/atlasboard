@@ -1,5 +1,9 @@
 import { useSubscription } from "@apollo/client";
-import { BoardDeletedDocument, BoardInvitedDocument } from "@/graphql/generated/graphql";
+import {
+  BoardDeletedDocument,
+  BoardInvitedDocument,
+  BoardUpdatedDocument,
+} from "@/graphql/generated/graphql";
 import { useNavigate } from "react-router-dom";
 
 type useBoardSubscriptionsProps = {
@@ -18,6 +22,18 @@ export function useBoardSubscriptions({
       const invitedBoard = data.data?.boardInvited;
       if (invitedBoard) {
         refetchBoards();
+      }
+    },
+  });
+
+  useSubscription(BoardUpdatedDocument, {
+    onData: ({ data }) => {
+      const updatedBoard = data.data?.boardUpdated;
+      if (updatedBoard) {
+        // Only refetch if this board is the one currently being viewed
+        if (currentBoardId && updatedBoard.id === currentBoardId) {
+          refetchBoards();
+        }
       }
     },
   });

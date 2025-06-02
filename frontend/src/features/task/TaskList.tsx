@@ -6,20 +6,19 @@ import {
   UpdateTaskDocument,
   type TaskStatus,
   type Task,
-  type Board,
 } from "@/graphql/generated/graphql";
 import TaskForm from "./TaskForm";
 import TaskItem from "./TaskItem";
 import { useGetBoards } from "@/hooks/useGetBoards";
 import { useTaskSubscriptions } from "@/hooks/useTaskSubscriptions";
+import { ClipboardList } from "lucide-react";
 
 type TaskListProps = {
-  board: Board;
+  boardId: string;
   currentUserRole: "OWNER" | "EDITOR" | "VIEWER";
 };
 
-const TaskList = ({ board, currentUserRole }: TaskListProps) => {
-  const { id: boardId, title: boardTitle } = board;
+const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
   const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
     variables: { boardId },
   });
@@ -63,13 +62,10 @@ const TaskList = ({ board, currentUserRole }: TaskListProps) => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-6 space-y-10">
-      <div>
-        <h2 className="text-3xl font-extrabold text-amber-800 dark:text-amber-100 mb-2">
-          {boardTitle}
-        </h2>
-        <p className="text-zinc-600 dark:text-zinc-300">Current tasks for this board.</p>
-      </div>
-
+      <h2 className="flex items-center gap-2 text-3xl font-extrabold text-amber-800 dark:text-amber-100">
+        <ClipboardList className="w-6 h-6 text-amber-700 dark:text-amber-200" />
+        Current Tasks
+      </h2>
       {/* Task creation form */}
       {(currentUserRole === "OWNER" || currentUserRole === "EDITOR") && (
         <TaskForm onSubmit={handleCreate} />

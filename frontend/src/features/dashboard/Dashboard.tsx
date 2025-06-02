@@ -102,13 +102,14 @@ export const Dashboard = () => {
               ) : (
                 upcomingDeadlines.slice(0, 3).map((task) => (
                   <li key={task.title}>
-                    <span className="font-medium text-zinc-800 dark:text-zinc-100">
-                      {task.title} due at{" "}
-                    </span>
-                    {new Date(task.dueDate).toLocaleDateString(undefined, {
-                      month: "short",
-                      day: "numeric",
-                    })}
+                    <div className="flex flex-col gap-1">
+                      <span className="font-medium text-zinc-800 dark:text-zinc-100">
+                        {task.title}
+                      </span>
+                      <span className="text-sm text-zinc-500 dark:text-zinc-400 italic">
+                        Due {new Date(task.dueDate).toISOString().split("T")[0]}
+                      </span>
+                    </div>
                   </li>
                 ))
               )}

@@ -20,7 +20,7 @@ const TaskForm = ({ onSubmit }: TaskFormProps) => {
     <form
       onSubmit={handleSubmit}
       className="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-slate-800 dark:to-slate-700 
-                 border border-amber-200 dark:border-slate-600 p-5 rounded-2xl shadow-md 
+                 border border-amber-200 dark:border-slate-600 p-4 rounded-2xl shadow-md 
                  flex flex-col sm:flex-row gap-3 items-stretch sm:items-center"
     >
       <input

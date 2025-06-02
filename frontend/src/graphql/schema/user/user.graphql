@@ -11,3 +11,21 @@ query Me {
     }
   }
 }
+
+# Find user based on user id
+query GetUser($userId: ID!) {
+  getUser(userId: $userId) {
+    id
+    email
+    username
+  }
+}
+
+# Searches for a user based on username or email
+query SearchUsers($query: String!) {
+  searchUsers(query: $query) {
+    id
+    username
+    email
+  }
+}
