@@ -5,7 +5,9 @@ import {
   deleteBoard,
   getBoard,
   removeBoardMember,
+  resolveBoardMemberUser,
   tasks,
+  updateBoard,
   updateBoardMember,
 } from "./board.service";
 import {
@@ -13,6 +15,7 @@ import {
   boardInvited,
   boardMemberRemoved,
   boardMemberUpdated,
+  boardUpdated,
 } from "./board.subscription";
 
 export const boardResolvers = {
@@ -23,6 +26,7 @@ export const boardResolvers = {
 
   Mutation: {
     createBoard,
+    updateBoard,
     deleteBoard,
     addBoardMember,
     updateBoardMember,
@@ -31,6 +35,7 @@ export const boardResolvers = {
 
   Subscription: {
     boardInvited,
+    boardUpdated,
     boardDeleted,
     boardMemberUpdated,
     boardMemberRemoved,
@@ -39,5 +44,9 @@ export const boardResolvers = {
   Board: {
     // This field resolver is optional if included via `include: { tasks: true }` above
     tasks,
+  },
+
+  BoardMember: {
+    user: resolveBoardMemberUser,
   },
 };

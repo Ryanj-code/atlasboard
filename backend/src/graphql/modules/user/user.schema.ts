@@ -10,5 +10,7 @@ export const userTypeDefs = gql`
 
   type Query {
     me: User
+    getUser(userId: ID!): User!
+    searchUsers(query: String!): [User!]!
   }
 `;

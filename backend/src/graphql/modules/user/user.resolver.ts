@@ -1,8 +1,10 @@
-import { boards, me } from "./user.service";
+import { boards, getUser, me, searchUsers } from "./user.service";
 
 export const userResolvers = {
   Query: {
     me,
+    getUser,
+    searchUsers,
   },
 
   User: {

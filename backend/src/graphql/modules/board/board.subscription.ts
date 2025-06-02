@@ -16,6 +16,19 @@ export const boardInvited = {
   ),
 };
 
+export const boardUpdated = {
+  subscribe: withFilter(
+    () => {
+      return pubsub.asyncIterableIterator("BOARD_UPDATED");
+    },
+    (payload, _args, context) => {
+      const userId = context.userId;
+      const members = payload.boardUpdated?.members ?? [];
+      return members.some((m: BoardMember) => m.userId === userId);
+    }
+  ),
+};
+
 export const boardDeleted = {
   subscribe: withFilter(
     () => {

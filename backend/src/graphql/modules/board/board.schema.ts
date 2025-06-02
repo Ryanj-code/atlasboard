@@ -26,6 +26,7 @@ export const boardTypeDefs = gql`
     userId: String!
     role: BoardRole!
     createdAt: DateTime!
+    user: User!
   }
 
   type Query {
@@ -35,6 +36,7 @@ export const boardTypeDefs = gql`
 
   type Mutation {
     createBoard(title: String!, description: String): Board!
+    updateBoard(boardId: ID!, title: String, description: String): Board!
     deleteBoard(boardId: ID!): Board!
 
     addBoardMember(boardId: String!, userId: String!, role: BoardRole!): BoardMember!
@@ -44,6 +46,7 @@ export const boardTypeDefs = gql`
 
   type Subscription {
     boardInvited: Board!
+    boardUpdated: Board!
     boardDeleted: Board!
 
     boardMemberUpdated(boardId: ID!): BoardMember!

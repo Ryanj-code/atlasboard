@@ -1,10 +1,8 @@
 import { Context } from "../../../context";
 import { requireAuth, requireBoardRole } from "../../utils";
-import { BoardMember, BoardRole } from "../../../../prisma/generated";
+import { BoardRole } from "../../../../prisma/generated";
 import { pubsub } from "../../pubsub";
 import { GraphQLError } from "graphql";
-import { withFilter } from "graphql-subscriptions";
-import { boardDeleted, boardMemberUpdated } from "./board.subscription";
 
 export async function boards(_parent: unknown, _args: {}, context: Context) {
   const userId = requireAuth(context);
@@ -72,6 +70,39 @@ export async function createBoard(
       },
     },
   });
+}
+
+export async function updateBoard(
+  _parent: unknown,
+  {
+    boardId,
+    title,
+    description,
+  }: { boardId: string; title?: string; description?: string },
+  context: Context
+) {
+  const userId = requireAuth(context);
+
+  // Allow only OWNER or EDITOR to update board
+  await requireBoardRole(context.prisma, userId, boardId, [
+    BoardRole.OWNER,
+    BoardRole.EDITOR,
+  ]);
+
+  const updatedBoard = await context.prisma.board.update({
+    where: { id: boardId },
+    data: {
+      ...(title && { title }),
+      ...(description !== undefined && { description }),
+    },
+    include: { members: true },
+  });
+
+  await pubsub.publish("BOARD_UPDATED", {
+    boardUpdated: updatedBoard,
+  });
+
+  return updatedBoard;
 }
 
 export async function deleteBoard(
@@ -193,5 +224,15 @@ export async function tasks(parent: { id: string }, _args: {}, context: Context)
 
   return context.prisma.task.findMany({
     where: { boardId: parent.id },
+  });
+}
+
+export async function resolveBoardMemberUser(
+  parent: { userId: string },
+  _args: {},
+  context: Context
+) {
+  return context.prisma.user.findUnique({
+    where: { id: parent.userId },
   });
 }
