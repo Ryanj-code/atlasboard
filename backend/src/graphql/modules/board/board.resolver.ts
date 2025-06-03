@@ -1,11 +1,12 @@
 import {
   addBoardMember,
+  boardMembers,
+  boardMemberUser,
   boards,
   createBoard,
   deleteBoard,
   getBoard,
   removeBoardMember,
-  resolveBoardMemberUser,
   tasks,
   updateBoard,
   updateBoardMember,
@@ -41,12 +42,13 @@ export const boardResolvers = {
     boardMemberRemoved,
   },
 
+  // Field resolvers
   Board: {
-    // This field resolver is optional if included via `include: { tasks: true }` above
     tasks,
+    members: boardMembers,
   },
 
   BoardMember: {
-    user: resolveBoardMemberUser,
+    user: boardMemberUser,
   },
 };

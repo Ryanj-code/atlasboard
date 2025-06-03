@@ -13,4 +13,8 @@ export const userTypeDefs = gql`
     getUser(userId: ID!): User!
     searchUsers(query: String!): [User!]!
   }
+
+  type Subscription {
+    userBoardsUpdated(userId: ID!): Boolean
+  }
 `;

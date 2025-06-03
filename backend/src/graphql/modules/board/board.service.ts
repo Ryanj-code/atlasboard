@@ -227,7 +227,19 @@ export async function tasks(parent: { id: string }, _args: {}, context: Context)
   });
 }
 
-export async function resolveBoardMemberUser(
+export async function boardMembers(parent: { id: string }, _args: {}, context: Context) {
+  requireAuth(context);
+
+  return context.prisma.boardMember.findMany({
+    where: { boardId: parent.id },
+    select: {
+      userId: true,
+      role: true,
+    },
+  });
+}
+
+export async function boardMemberUser(
   parent: { userId: string },
   _args: {},
   context: Context

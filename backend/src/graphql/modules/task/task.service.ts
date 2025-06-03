@@ -45,6 +45,17 @@ export async function createTask(
     taskCreated: newTask,
   });
 
+  const boardMembers = await context.prisma.boardMember.findMany({
+    where: { boardId: args.boardId },
+    select: { userId: true },
+  });
+
+  const userIds = boardMembers.map((m) => m.userId);
+
+  await pubsub.publish("USER_BOARDS_UPDATED", {
+    userBoardsUpdated: { userIds, value: true },
+  });
+
   return newTask;
 }
 
@@ -85,6 +96,16 @@ export async function updateTask(
     taskUpdated: updatedTask,
   });
 
+  const boardMembers = await context.prisma.boardMember.findMany({
+    where: { boardId: task.boardId },
+    select: { userId: true },
+  });
+  const userIds = boardMembers.map((m) => m.userId);
+
+  await pubsub.publish("USER_BOARDS_UPDATED", {
+    userBoardsUpdated: { userIds, value: true },
+  });
+
   return updatedTask;
 }
 
@@ -113,6 +134,16 @@ export async function deleteTask(
 
   await pubsub.publish("TASK_DELETED", {
     taskDeleted: deletedTask,
+  });
+
+  const boardMembers = await context.prisma.boardMember.findMany({
+    where: { boardId: task.boardId },
+    select: { userId: true },
+  });
+  const userIds = boardMembers.map((m) => m.userId);
+
+  await pubsub.publish("USER_BOARDS_UPDATED", {
+    userBoardsUpdated: { userIds, value: true },
   });
 
   return deletedTask;
