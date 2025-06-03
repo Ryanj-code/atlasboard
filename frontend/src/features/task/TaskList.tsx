@@ -12,6 +12,7 @@ import TaskItem from "./TaskItem";
 import { useGetBoards } from "@/hooks/useGetBoards";
 import { useTaskSubscriptions } from "@/hooks/useTaskSubscriptions";
 import { ClipboardList } from "lucide-react";
+import { useMemo } from "react";
 
 type TaskListProps = {
   boardId: string;
@@ -48,17 +49,17 @@ const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
     refetchBoard();
   };
 
-  const grouped: Record<TaskStatus, Task[]> = {
-    TODO: [],
-    IN_PROGRESS: [],
-    DONE: [],
-  };
-
-  data?.tasks.forEach((task: Task) => {
-    if (grouped[task.status as TaskStatus]) {
-      grouped[task.status as TaskStatus].push(task);
-    }
-  });
+  const grouped = useMemo(() => {
+    const buckets: Record<TaskStatus, Task[]> = {
+      TODO: [],
+      IN_PROGRESS: [],
+      DONE: [],
+    };
+    data?.tasks.forEach((task: Task) => {
+      buckets[task.status].push(task);
+    });
+    return buckets;
+  }, [data?.tasks]);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-6 space-y-10">

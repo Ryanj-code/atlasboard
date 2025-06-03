@@ -12,6 +12,15 @@ query GetBoards {
       status
       dueDate
     }
+    members {
+      userId
+      role
+      user {
+        id
+        username
+        email
+      }
+    }
   }
 }
 

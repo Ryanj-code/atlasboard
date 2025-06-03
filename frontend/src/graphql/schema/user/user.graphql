@@ -29,3 +29,8 @@ query SearchUsers($query: String!) {
     email
   }
 }
+
+# Subscription for board member being removed
+subscription userBoardsUpdated($userId: ID!) {
+  userBoardsUpdated(userId: $userId)
+}

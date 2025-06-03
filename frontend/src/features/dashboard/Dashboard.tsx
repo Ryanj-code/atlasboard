@@ -1,21 +1,17 @@
-import { useQuery } from "@apollo/client";
-import {
-  type TaskStatus,
-  type Task,
-  GetBoardsDocument,
-  type Board,
-} from "@/graphql/generated/graphql";
+import { type TaskStatus, type Task, type Board } from "@/graphql/generated/graphql";
 import BoardList from "../board/BoardList";
 import { LayoutDashboard, ListTodo, Calendar } from "lucide-react";
 import { SummaryCard } from "./SummaryCard";
 import { getStatusIcon, getStatusLabel } from "@/utils/utils";
 import { useAuth } from "@/contexts/AuthContext";
+import { useGetBoards } from "@/hooks/useGetBoards";
+import { useUserBoardSubscription } from "@/hooks/useUserBoardSusbcription";
 
 export const Dashboard = () => {
   const { user } = useAuth();
-  const { data, loading, error } = useQuery(GetBoardsDocument);
+  const { boards, loading, refetch } = useGetBoards();
+  useUserBoardSubscription({ userId: user?.id, refetchBoards: refetch });
 
-  const boards = data?.boards || [];
   const allTasks = boards.flatMap((b: Board) => b.tasks);
 
   const taskCounts = {
@@ -30,7 +26,7 @@ export const Dashboard = () => {
     if (task.status in taskCounts) {
       taskCounts[task.status as TaskStatus]++;
     }
-    if (task.dueDate) {
+    if (task.dueDate && task.status !== "DONE") {
       upcomingDeadlines.push({
         title: task.title,
         dueDate: task.dueDate,
