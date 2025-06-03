@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Button from "@/components/ui/Button";
+import { Home } from "lucide-react";
 
 export const Login = () => {
   const { login } = useAuth();
@@ -25,34 +26,59 @@ export const Login = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto mt-16 p-6 bg-white dark:bg-gray-900 rounded-lg shadow">
-      <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
-        Login
-      </h1>
-
-      {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full border rounded px-3 py-2 dark:bg-gray-800 dark:text-white"
-          required
-        />
-        <Button type="submit" variant="primary" size="md" className="w-full">
+    <div className="min-h-screen flex flex-col items-center justify-center px-4 bg-white dark:bg-slate-900">
+      <div className="w-full max-w-md p-6 rounded-2xl shadow-md bg-white dark:bg-slate-800 border border-amber-200 dark:border-slate-700">
+        <h1 className="text-3xl font-bold text-[#5c3a0d] dark:text-amber-100 mb-6 text-center">
           Login
-        </Button>
-      </form>
+        </h1>
+
+        <p className="text-center text-m text-amber-700 dark:text-amber-300 mb-6">
+          Welcome back!
+        </p>
+
+        {error && <p className="text-red-500 text-sm mb-4 text-center">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full px-4 py-2 rounded-xl border border-amber-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-[#5c3a0d] dark:text-amber-100 placeholder-zinc-500 dark:placeholder-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full px-4 py-2 rounded-xl border border-amber-200 dark:border-slate-600 bg-white dark:bg-slate-700 text-[#5c3a0d] dark:text-amber-100 placeholder-zinc-500 dark:placeholder-zinc-400 shadow-sm focus:outline-none focus:ring-2 focus:ring-amber-400 dark:focus:ring-amber-300"
+            required
+          />
+          <Button type="submit" variant="primary" size="md" className="w-full">
+            Login
+          </Button>
+        </form>
+
+        <p className="mt-4 text-center text-sm text-zinc-600 dark:text-zinc-400">
+          Don’t have an account?{" "}
+          <Link
+            to="/signup"
+            className="font-semibold text-[#5c3a0d] dark:text-amber-200 hover:underline"
+          >
+            Sign up
+          </Link>
+        </p>
+      </div>
+
+      {/* Home Icon */}
+      <Link
+        to="/"
+        className="mt-6 text-zinc-500 dark:text-zinc-400 hover:text-amber-600 dark:hover:text-amber-300 transition-colors flex items-center gap-1 text-sm"
+      >
+        <Home className="w-4 h-4" />
+        Back to Home
+      </Link>
     </div>
   );
 };

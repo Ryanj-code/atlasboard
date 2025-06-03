@@ -2,21 +2,25 @@ import { Link } from "react-router-dom";
 
 export const LandingHeader = () => {
   return (
-    <header className="bg-gradient-to-br from-amber-50 to-orange-100 dark:from-slate-900 dark:to-slate-800 px-6 py-4 border-b border-zinc-200 dark:border-zinc-700 shadow-sm">
-      <div className="max-w-7xl mx-auto flex items-center justify-between">
-        <h1 className="text-2xl font-extrabold text-amber-700 dark:text-amber-200 tracking-tight">
+    <header className="sticky top-0 z-50 bg-[#fdfcf9]/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-amber-200 dark:border-slate-700 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <Link
+          to="/"
+          className="text-2xl font-bold tracking-tight text-amber-700 dark:text-amber-300 hover:text-amber-600 dark:hover:text-amber-200 transition-colors"
+        >
           AtlasBoard
-        </h1>
-        <nav className="space-x-4">
+        </Link>
+
+        <nav className="space-x-6">
           <Link
             to="/login"
-            className="text-zinc-700 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-300 transition font-medium"
+            className="text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-sky-300 transition"
           >
             Login
           </Link>
           <Link
             to="/signup"
-            className="text-zinc-700 dark:text-zinc-300 hover:text-amber-700 dark:hover:text-amber-300 transition font-medium"
+            className="text-sm font-medium text-zinc-700 dark:text-zinc-300 hover:text-blue-600 dark:hover:text-sky-300 transition"
           >
             Sign Up
           </Link>

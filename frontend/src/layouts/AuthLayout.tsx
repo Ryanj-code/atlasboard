@@ -10,5 +10,9 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
 
   if (!user) return null;
 
-  return <div className="min-h-screen">{children || <Outlet />}</div>;
+  return (
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900">
+      <main className="px-4">{children || <Outlet />}</main>
+    </div>
+  );
 };
