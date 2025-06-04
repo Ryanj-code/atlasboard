@@ -30,9 +30,11 @@ export function useBoardMemberSubscriptions(
     onData: ({ data }) => {
       const removed = data.data?.boardMemberRemoved;
       if (removed?.userId === currentUserId) {
-        // Set custom modal
-        // Optional: Evict board from cache
+        // Removed member
         navigate("/dashboard");
+      } else {
+        // For other members
+        refetchBoard();
       }
     },
   });

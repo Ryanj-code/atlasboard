@@ -1,20 +1,27 @@
-import { X, Trash2 } from "lucide-react";
+import { X, AlertTriangle } from "lucide-react";
+import type { ReactNode } from "react";
 
-type ConfirmDeleteModalProps = {
+type ConfirmActionModalProps = {
   isOpen: boolean;
   title?: string;
   description?: string;
   onConfirm: () => void;
   onCancel: () => void;
+  confirmLabel?: string;
+  cancelLabel?: string;
+  icon?: ReactNode;
 };
 
-const ConfirmDeleteModal = ({
+const ConfirmActionModal = ({
   isOpen,
-  title = "Delete Item",
-  description = "Are you sure you want to delete this? This action cannot be undone.",
+  title = "Confirm Action",
+  description = "Are you sure you want to proceed? This action cannot be undone.",
   onConfirm,
   onCancel,
-}: ConfirmDeleteModalProps) => {
+  confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
+  icon,
+}: ConfirmActionModalProps) => {
   if (!isOpen) return null;
 
   return (
@@ -30,30 +37,28 @@ const ConfirmDeleteModal = ({
 
         {/* Header */}
         <div className="flex items-center gap-3 mb-4">
-          <Trash2 className="w-6 h-6 text-red-600 dark:text-red-400" />
-          <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">
-            {title}
-          </h2>
+          {icon ?? (
+            <AlertTriangle className="w-6 h-6 text-yellow-600 dark:text-yellow-400" />
+          )}
+          <h2 className="text-lg font-bold text-zinc-800 dark:text-zinc-100">{title}</h2>
         </div>
 
         {/* Description */}
-        <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">
-          {description}
-        </p>
+        <p className="text-sm text-zinc-600 dark:text-zinc-300 mb-6">{description}</p>
 
         {/* Actions */}
         <div className="flex justify-end gap-3">
           <button
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium rounded-xl bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-600 transition-all"
+            className="px-4 py-2 text-sm font-medium rounded-xl bg-zinc-100 dark:bg-zinc-700 text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-slate-600 transition-all"
           >
-            Cancel
+            {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className="px-4 py-2 text-sm font-medium rounded-xl bg-red-600 hover:bg-red-700 text-white transition-all"
+            className="px-4 py-2 text-sm font-medium rounded-xl bg-amber-600 hover:bg-amber-700 text-white transition-all"
           >
-            Confirm
+            {confirmLabel}
           </button>
         </div>
       </div>
@@ -61,4 +66,4 @@ const ConfirmDeleteModal = ({
   );
 };
 
-export default ConfirmDeleteModal;
+export default ConfirmActionModal;

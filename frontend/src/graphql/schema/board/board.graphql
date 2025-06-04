@@ -110,6 +110,17 @@ mutation RemoveBoardMember($boardId: String!, $userId: String!) {
   }
 }
 
+# User leaves a board where they are not the owner
+mutation LeaveBoard($boardId: String!) {
+  leaveBoard(boardId: $boardId) {
+    id
+    boardId
+    userId
+    role
+    createdAt
+  }
+}
+
 # Subscription for board invite
 subscription BoardInvited {
   boardInvited {

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { Task, TaskStatus } from "@/graphql/generated/graphql";
 import { Pencil, Trash2, Calendar, Check, X } from "lucide-react";
-import ConfirmDeleteModal from "@/components/ui/ConfirmDeleteModal";
+import ConfirmDeleteModal from "@/components/ui/ConfirmActionModal";
 import { formatDateForInput } from "@/utils/utils";
 
 type TaskItemProps = {

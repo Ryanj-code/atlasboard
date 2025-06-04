@@ -2,7 +2,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@apollo/client";
 import { GetBoardDocument, type BoardMember } from "@/graphql/generated/graphql";
 import TaskList from "../task/TaskList";
-import BoardMembers from "./BoardMembers";
+import BoardMembers from "../board-member/BoardMembers";
 import { AlertTriangle } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";

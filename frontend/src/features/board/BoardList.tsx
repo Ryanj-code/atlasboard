@@ -4,7 +4,7 @@ import { useMutation } from "@apollo/client";
 import { DeleteBoardDocument, type Board } from "@/graphql/generated/graphql";
 import CreateBoardForm from "./CreateBoardForm";
 import { useGetBoards } from "@/hooks/useGetBoards";
-import ConfirmDeleteModal from "@/components/ui/ConfirmDeleteModal";
+import ConfirmDeleteModal from "@/components/ui/ConfirmActionModal";
 import BoardCard from "./BoardCard";
 import { useBoardSubscriptions } from "@/hooks/useBoardSubscriptions";
 
@@ -48,10 +48,10 @@ const BoardList = () => {
           <LayoutDashboard className="w-8 h-8 text-[#5c3a0d] dark:text-amber-300" />
           <div>
             <h2 className="text-3xl font-bold text-[#5c3a0d] dark:text-amber-100">
-              Developer Dashboard – Projects Overview
+              Dashboard – Boards Overview
             </h2>
             <p className="text-[#5c3a0d] dark:text-amber-300 text-sm">
-              Track active boards, issues, and progress
+              Track active boards, tasks, and progress
             </p>
           </div>
         </div>
@@ -85,7 +85,7 @@ const BoardList = () => {
           <div className="flex items-center gap-2 mb-4">
             <PlusSquare className="w-5 h-5 text-[#5c3a0d] dark:text-amber-300" />
             <h3 className="text-lg font-semibold text-[#5c3a0d] dark:text-amber-100">
-              Create New Project Board
+              Create New Board
             </h3>
           </div>
 
