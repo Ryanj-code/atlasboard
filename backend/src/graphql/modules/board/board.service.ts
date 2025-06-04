@@ -206,6 +206,47 @@ export async function removeBoardMember(
   return removedMember;
 }
 
+export async function leaveBoard(
+  _parent: unknown,
+  args: { boardId: string },
+  context: Context
+) {
+  const userId = requireAuth(context);
+
+  const member = await context.prisma.boardMember.findUnique({
+    where: {
+      userId_boardId: {
+        userId,
+        boardId: args.boardId,
+      },
+    },
+    select: { role: true },
+  });
+
+  if (!member) {
+    throw new Error("You're not a member of this board.");
+  }
+
+  if (member.role === BoardRole.OWNER) {
+    throw new Error("Owners cannot leave the board.");
+  }
+
+  const removed = await context.prisma.boardMember.delete({
+    where: {
+      userId_boardId: {
+        userId,
+        boardId: args.boardId,
+      },
+    },
+  });
+
+  await pubsub.publish("BOARD_MEMBER_REMOVED", {
+    boardMemberRemoved: removed,
+  });
+
+  return removed;
+}
+
 export async function tasks(parent: { id: string }, _args: {}, context: Context) {
   const userId = requireAuth(context);
 

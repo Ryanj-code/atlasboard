@@ -42,6 +42,7 @@ export const boardTypeDefs = gql`
     addBoardMember(boardId: String!, userId: String!, role: BoardRole!): BoardMember!
     updateBoardMember(boardId: String!, userId: String!, role: BoardRole!): BoardMember!
     removeBoardMember(boardId: String!, userId: String!): BoardMember!
+    leaveBoard(boardId: String!): BoardMember!
   }
 
   type Subscription {

@@ -6,6 +6,7 @@ import {
   createBoard,
   deleteBoard,
   getBoard,
+  leaveBoard,
   removeBoardMember,
   tasks,
   updateBoard,
@@ -32,6 +33,7 @@ export const boardResolvers = {
     addBoardMember,
     updateBoardMember,
     removeBoardMember,
+    leaveBoard,
   },
 
   Subscription: {
