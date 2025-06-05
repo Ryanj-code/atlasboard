@@ -8,29 +8,70 @@ query GetTasks($boardId: ID!) {
     createdAt
     updatedAt
     boardId
+    assignees {
+      id
+      username
+      email
+    }
   }
 }
 
 # Create a task
-mutation CreateTask($boardId: ID!, $title: String!, $status: TaskStatus!) {
-  createTask(boardId: $boardId, title: $title, status: $status) {
+mutation CreateTask(
+  $boardId: ID!
+  $title: String!
+  $status: TaskStatus!
+  $dueDate: DateTime
+  $assigneeIds: [ID!]
+) {
+  createTask(
+    boardId: $boardId
+    title: $title
+    status: $status
+    dueDate: $dueDate
+    assigneeIds: $assigneeIds
+  ) {
     id
     title
     status
     dueDate
     createdAt
     updatedAt
+    boardId
+    assignees {
+      id
+      username
+      email
+    }
   }
 }
 
 # Update a task
-mutation UpdateTask($id: ID!, $title: String, $status: TaskStatus, $dueDate: DateTime) {
-  updateTask(id: $id, title: $title, status: $status, dueDate: $dueDate) {
+mutation UpdateTask(
+  $id: ID!
+  $title: String
+  $status: TaskStatus
+  $dueDate: DateTime
+  $assigneeIds: [ID!]
+) {
+  updateTask(
+    id: $id
+    title: $title
+    status: $status
+    dueDate: $dueDate
+    assigneeIds: $assigneeIds
+  ) {
     id
     title
     status
     dueDate
     updatedAt
+    boardId
+    assignees {
+      id
+      username
+      email
+    }
   }
 }
 
@@ -51,6 +92,11 @@ subscription TaskCreated($boardId: ID!) {
     createdAt
     updatedAt
     boardId
+    assignees {
+      id
+      username
+      email
+    }
   }
 }
 
@@ -64,6 +110,11 @@ subscription TaskUpdated($boardId: ID!) {
     createdAt
     updatedAt
     boardId
+    assignees {
+      id
+      username
+      email
+    }
   }
 }
 
@@ -77,5 +128,10 @@ subscription TaskDeleted($boardId: ID!) {
     createdAt
     updatedAt
     boardId
+    assignees {
+      id
+      username
+      email
+    }
   }
 }

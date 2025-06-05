@@ -1,3 +1,4 @@
+import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@apollo/client";
 import {
   GetTasksDocument,
@@ -6,13 +7,14 @@ import {
   UpdateTaskDocument,
   type TaskStatus,
   type Task,
+  GetBoardDocument,
 } from "@/graphql/generated/graphql";
 import TaskForm from "./TaskForm";
 import TaskItem from "./TaskItem";
 import { useGetBoards } from "@/hooks/useGetBoards";
 import { useTaskSubscriptions } from "@/hooks/useTaskSubscriptions";
-import { ClipboardList } from "lucide-react";
-import { useMemo } from "react";
+import { ClipboardList, Plus, X } from "lucide-react";
+import Button from "@/components/ui/Button";
 
 type TaskListProps = {
   boardId: string;
@@ -20,9 +22,17 @@ type TaskListProps = {
 };
 
 const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
+  const [showForm, setShowForm] = useState(false);
+
   const { data, loading, error, refetch } = useQuery(GetTasksDocument, {
     variables: { boardId },
   });
+
+  const { data: BoardData } = useQuery(GetBoardDocument, {
+    variables: { boardId },
+  });
+
+  const currentBoardMembers = BoardData.getBoard.members;
 
   const { refetch: refetchBoard } = useGetBoards();
   useTaskSubscriptions({ boardId, refetchTask: refetch, refetchBoard });
@@ -31,10 +41,18 @@ const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
   const [deleteTask] = useMutation(DeleteTaskDocument);
   const [updateTask] = useMutation(UpdateTaskDocument);
 
-  const handleCreate = async (title: string, status: TaskStatus) => {
-    await createTask({ variables: { boardId, title, status } });
+  const handleCreate = async (
+    title: string,
+    status: TaskStatus,
+    dueDate?: string,
+    assigneeIds?: string[]
+  ) => {
+    await createTask({
+      variables: { boardId, title, status, dueDate, assigneeIds },
+    });
     refetch();
     refetchBoard();
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -43,8 +61,13 @@ const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
     refetchBoard();
   };
 
-  const handleUpdate = async (id: string, updates: Partial<Task>) => {
-    await updateTask({ variables: { id, ...updates } });
+  const handleUpdate = async (
+    id: string,
+    updates: Partial<Task> & { assigneeIds?: string[] }
+  ) => {
+    await updateTask({
+      variables: { id, ...updates },
+    });
     refetch();
     refetchBoard();
   };
@@ -63,13 +86,37 @@ const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-6 space-y-10">
-      <h2 className="flex items-center gap-2 text-3xl font-extrabold text-amber-800 dark:text-amber-100">
-        <ClipboardList className="w-6 h-6 text-amber-700 dark:text-amber-200" />
-        Current Tasks
-      </h2>
-      {/* Task creation form */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <h2 className="flex items-center gap-2 text-3xl font-extrabold text-amber-800 dark:text-amber-100">
+          <ClipboardList className="w-6 h-6 text-amber-700 dark:text-amber-200" />
+          Current Tasks
+        </h2>
+
+        {(currentUserRole === "OWNER" || currentUserRole === "EDITOR") && (
+          <Button
+            onClick={() => setShowForm((prev) => !prev)}
+            variant="primary"
+            size="sm"
+            className="flex items-center gap-2"
+          >
+            {showForm ? (
+              <>
+                <X className="w-4 h-4" />
+                Cancel
+              </>
+            ) : (
+              <>
+                <Plus className="w-4 h-4" />
+                Add Task
+              </>
+            )}
+          </Button>
+        )}
+      </div>
       {(currentUserRole === "OWNER" || currentUserRole === "EDITOR") && (
-        <TaskForm onSubmit={handleCreate} />
+        <div className="space-y-4">
+          {showForm && <TaskForm onSubmit={handleCreate} members={currentBoardMembers} />}
+        </div>
       )}
 
       {loading && (
@@ -104,6 +151,7 @@ const TaskList = ({ boardId, currentUserRole }: TaskListProps) => {
                     onDelete={handleDelete}
                     onUpdate={handleUpdate}
                     currentUserRole={currentUserRole}
+                    members={currentBoardMembers}
                   />
                 ))
               ) : (
