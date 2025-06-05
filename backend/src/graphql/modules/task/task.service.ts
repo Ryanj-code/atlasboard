@@ -1,6 +1,6 @@
 import { Context } from "../../../context";
 import { requireAuth, requireBoardRole } from "../../utils";
-import { BoardRole, TaskStatus } from "../../../../prisma/generated";
+import { BoardRole, TaskStatus } from "@prisma/client";
 import { pubsub } from "../../pubsub";
 
 export async function tasks(
@@ -18,12 +18,19 @@ export async function tasks(
 
   return context.prisma.task.findMany({
     where: { boardId: args.boardId },
+    include: { assignees: true },
   });
 }
 
 export async function createTask(
   _parent: unknown,
-  args: { boardId: string; title: string; status: TaskStatus },
+  args: {
+    boardId: string;
+    title: string;
+    status: TaskStatus;
+    dueDate?: string;
+    assigneeIds?: string[];
+  },
   context: Context
 ) {
   const userId = requireAuth(context);
@@ -33,11 +40,25 @@ export async function createTask(
     BoardRole.EDITOR,
   ]);
 
+  let dueDate: Date | undefined;
+  if (args.dueDate && !isNaN(Date.parse(args.dueDate))) {
+    dueDate = new Date(args.dueDate);
+  }
+
   const newTask = await context.prisma.task.create({
     data: {
       boardId: args.boardId,
       title: args.title,
       status: args.status,
+      dueDate,
+      assignees: args.assigneeIds
+        ? {
+            connect: args.assigneeIds.map((id) => ({ id })),
+          }
+        : undefined,
+    },
+    include: {
+      assignees: true,
     },
   });
 
@@ -45,7 +66,7 @@ export async function createTask(
     taskCreated: newTask,
   });
 
-  const boardMembers = await context.prisma.boardMember.findMany({
+  const boardMembers: { userId: string }[] = await context.prisma.boardMember.findMany({
     where: { boardId: args.boardId },
     select: { userId: true },
   });
@@ -61,7 +82,13 @@ export async function createTask(
 
 export async function updateTask(
   _parent: unknown,
-  args: { id: string; title?: string; status?: TaskStatus; dueDate?: string },
+  args: {
+    id: string;
+    title?: string;
+    status?: TaskStatus;
+    dueDate?: string;
+    assigneeIds?: string[];
+  },
   context: Context
 ) {
   const userId = requireAuth(context);
@@ -89,6 +116,14 @@ export async function updateTask(
       title: args.title,
       status: args.status,
       dueDate,
+      ...(args.assigneeIds && {
+        assignees: {
+          set: args.assigneeIds.map((id) => ({ id })),
+        },
+      }),
+    },
+    include: {
+      assignees: true,
     },
   });
 
@@ -96,7 +131,7 @@ export async function updateTask(
     taskUpdated: updatedTask,
   });
 
-  const boardMembers = await context.prisma.boardMember.findMany({
+  const boardMembers: { userId: string }[] = await context.prisma.boardMember.findMany({
     where: { boardId: task.boardId },
     select: { userId: true },
   });
@@ -134,9 +169,10 @@ export async function deleteTask(
 
   await pubsub.publish("TASK_DELETED", {
     taskDeleted: deletedTask,
+    include: { assignees: true },
   });
 
-  const boardMembers = await context.prisma.boardMember.findMany({
+  const boardMembers: { userId: string }[] = await context.prisma.boardMember.findMany({
     where: { boardId: task.boardId },
     select: { userId: true },
   });
@@ -147,4 +183,19 @@ export async function deleteTask(
   });
 
   return deletedTask;
+}
+
+export async function taskAssignees(
+  parent: { id: string },
+  _args: {} = {},
+  context: Context
+) {
+  const taskWithAssignees = await context.prisma.task.findUnique({
+    where: { id: parent.id },
+    include: {
+      assignees: true,
+    },
+  });
+
+  return taskWithAssignees?.assignees ?? [];
 }

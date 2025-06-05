@@ -1,8 +1,8 @@
 import { Context } from "../../../context";
 import { requireAuth, requireBoardRole } from "../../utils";
-import { BoardRole } from "../../../../prisma/generated";
 import { pubsub } from "../../pubsub";
 import { GraphQLError } from "graphql";
+import { Board, BoardMember, BoardRole, Task } from "@prisma/client";
 
 export async function boards(_parent: unknown, _args: {}, context: Context) {
   const userId = requireAuth(context);
@@ -16,7 +16,11 @@ export async function boards(_parent: unknown, _args: {}, context: Context) {
     },
   });
 
-  return memberships.map((m) => m.board);
+  type MembershipWithBoardAndTasks = BoardMember & {
+    board: Board & { tasks: Task[] };
+  };
+
+  return memberships.map((m: MembershipWithBoardAndTasks) => m.board);
 }
 
 export async function getBoard(

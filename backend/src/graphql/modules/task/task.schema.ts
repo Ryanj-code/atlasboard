@@ -13,6 +13,7 @@ export const taskTypeDefs = gql`
     status: TaskStatus!
     dueDate: DateTime
     boardId: ID!
+    assignees: [User!]!
     createdAt: DateTime!
     updatedAt: DateTime!
   }
@@ -22,8 +23,20 @@ export const taskTypeDefs = gql`
   }
 
   type Mutation {
-    createTask(boardId: ID!, title: String!, status: TaskStatus!): Task!
-    updateTask(id: ID!, title: String, status: TaskStatus, dueDate: DateTime): Task!
+    createTask(
+      boardId: ID!
+      title: String!
+      status: TaskStatus!
+      dueDate: DateTime
+      assigneeIds: [ID!]
+    ): Task!
+    updateTask(
+      id: ID!
+      title: String
+      status: TaskStatus
+      dueDate: DateTime
+      assigneeIds: [ID!]
+    ): Task!
     deleteTask(id: ID!): Task!
   }
 

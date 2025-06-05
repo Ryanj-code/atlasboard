@@ -1,6 +1,6 @@
 import { withFilter } from "graphql-subscriptions";
 import { pubsub } from "../../pubsub";
-import { BoardMember } from "../../../../prisma/generated";
+import { BoardMember } from "@prisma/client";
 
 export const boardInvited = {
   subscribe: withFilter(

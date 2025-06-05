@@ -1,4 +1,4 @@
-import { createTask, deleteTask, tasks, updateTask } from "./task.service";
+import { createTask, deleteTask, taskAssignees, tasks, updateTask } from "./task.service";
 import { taskCreated, taskDeleted, taskUpdated } from "./task.subscription";
 
 export const taskResolvers = {
@@ -20,5 +20,6 @@ export const taskResolvers = {
 
   Task: {
     boardId: (parent: { boardId: string }) => parent.boardId,
+    assignees: taskAssignees,
   },
 };

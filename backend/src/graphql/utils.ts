@@ -1,6 +1,6 @@
 import { GraphQLError } from "graphql";
 import { Context } from "../context";
-import { BoardRole, PrismaClient } from "../../prisma/generated";
+import { BoardRole, PrismaClient } from "@prisma/client";
 
 export function requireAuth(context: Context): string {
   if (!context.userId) {

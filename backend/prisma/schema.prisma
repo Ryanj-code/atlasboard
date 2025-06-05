@@ -6,7 +6,6 @@
 
 generator client {
   provider = "prisma-client-js"
-  output   = "../prisma/generated"
 }
 
 datasource db {
@@ -22,6 +21,7 @@ model User {
   boards        Board[]        // Owned boards
   sessions      Session[]
   memberships   BoardMember[]  // Boards the user belongs to
+  assignedTasks  Task[]        @relation("TaskAssignments")
 }
 
 model Session {
@@ -58,14 +58,15 @@ model BoardMember {
 }
 
 model Task {
-  id        String   @id @default(uuid())
+  id        String      @id @default(uuid())
   title     String
   status    TaskStatus
   dueDate   DateTime?
-  board     Board    @relation(fields: [boardId], references: [id], onDelete: Cascade)
+  board     Board       @relation(fields: [boardId], references: [id], onDelete: Cascade)
   boardId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  assignees   User[]    @relation("TaskAssignments")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
 }
 
 enum BoardRole {
